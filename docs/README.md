@@ -8,6 +8,7 @@
 - [`arquitetura/`](./arquitetura) — visão geral técnica, diagramas, decisões de infraestrutura.
 - [`decisoes/`](./decisoes) — Architecture Decision Records (ADRs), uma decisão relevante por arquivo.
 - [`api/`](./api) — contratos e documentação da API (endpoints, autenticação, versionamento).
+- [`processo/`](./processo) — fluxo de trabalho do time: branches, Pull Requests, padrão de commits.
 
 ## Convenções
 

@@ -1,0 +1,41 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build outputs
+dist/
+build/
+.next/
+.turbo/
+*.tsbuildinfo
+
+# env
+.env
+.env.local
+.env.*.local
+
+# expo / react native
+apps/app/.expo/
+apps/app/.expo-shared/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# tests / coverage
+coverage/

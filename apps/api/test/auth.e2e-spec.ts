@@ -5,11 +5,8 @@ import cookieParser from "cookie-parser";
 import request from 'supertest';
 import { AppModule } from "src/app.module";
 
-// import { PrismaService } from "src/prisma/prisma.service";
-
 describe('(RF01): Cadastro de novos usuários', () => {
     let app: INestApplication;
-    // let prisma: PrismaService;
 
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -22,9 +19,6 @@ describe('(RF01): Cadastro de novos usuários', () => {
         app.setGlobalPrefix('api'); 
         await app.init();
 
-        // // Limpa os dados de teste da tabela Users antes de rodar os cenários
-        // prisma = app.get(PrismaService);
-        // await prisma.users.deleteMany();
     })
 
     afterAll(async () => {
@@ -38,7 +32,7 @@ describe('(RF01): Cadastro de novos usuários', () => {
                 .post('/api/auth/register')
                 .send({
                     name: 'Eduardo Lima',
-                    email: 'eduardo.lima@metanolfc.com',
+                    email: 'eduardo.lima1@metanolfc.com',
                     password: 'SenhaSegura123!',
                 });
             expect(response.status).toBe(201);
@@ -65,11 +59,21 @@ describe('(RF01): Cadastro de novos usuários', () => {
     describe('Cenários de Falha (Caminho de Exceção)', () => {
 
         it('Cenário 3: Cadastro rejeitado por e-mail duplicado', async () => {
+
+            await request(app.getHttpServer())
+                .post('/api/auth/register')
+                .send({
+                    name: 'Eduardo Lima',
+                    nickname: 'Dudu',
+                    email: 'kaua.lima@metanolfc.com',
+                    password: 'SenhaForte987!',
+            });
+
             const response = await request(app.getHttpServer())
                 .post('/api/auth/register')
                 .send({
                     name: 'Eduardo Outro',
-                    email: 'eduardo.lima@metanolfc.com',
+                    email: 'kaua.lima@metanolfc.com',
                     password: 'SenhaSecreta999!',
                 });
             expect(response.status).toBe(409);

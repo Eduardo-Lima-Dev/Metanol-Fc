@@ -15,7 +15,7 @@ import { APP_GUARD } from '@nestjs/core';
       {
         name: 'global',
         ttl: 60_000,
-        limit: 100,
+        limit: 60,
       },
       {
         name: 'login',

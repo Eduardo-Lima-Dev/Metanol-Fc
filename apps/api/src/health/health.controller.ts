@@ -5,7 +5,7 @@ export class HealthController {
     @Get()
     chack() {
         return {
-            message: "OK"
+            status: "ok"
         }
     }
 }

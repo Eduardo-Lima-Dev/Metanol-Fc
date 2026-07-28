@@ -11,8 +11,10 @@ async function bootstrap() {
   app.useGlobalPipes(new ZodValidationPipe());
   app.setGlobalPrefix('api');
 
-  await app.listen(process.env.PORT ?? 3338);
-  console.log(`🚀 API running on http://localhost:${process.env.PORT}/api`);
+  const port = process.env.PORT || 3338
+
+  await app.listen(port);
+  console.log(`🚀 API running on http://localhost:${port}/api`);
 }
 
 bootstrap();

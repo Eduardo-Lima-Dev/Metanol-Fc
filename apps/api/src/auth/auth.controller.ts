@@ -28,9 +28,16 @@ export class AuthController {
 
     @Post('register')
     @HttpCode(201)
-    @Throttle({ register: { ttl: 60_000, limit: 5 } })
+    @Throttle({ login: { ttl: 60_000, limit: 5 } })
     async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
-        await this.authService.register(dto.name, dto.nickname, dto.email, dto.password)
+        const token = await this.authService.register(dto.name, dto.nickname, dto.email, dto.password)
+        res.cookie('token', token, {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 8 * 60 * 60 * 1000,
+        })
+
         return { message: 'Cadastro realizado com sucesso! Faça login para continuar.' }
     }
 

@@ -4,11 +4,14 @@ import { ZodValidationPipe } from "nestjs-zod";
 import cookieParser from "cookie-parser";
 import request from 'supertest';
 import { AppModule } from "src/app.module";
+import { PrismaService } from "src/prisma/prisma.service";
 
 describe('(RF01): Cadastro de novos usuários', () => {
     let app: INestApplication;
+    let prisma: PrismaService;
 
     beforeAll(async () => {
+        
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
         }).compile();
@@ -18,6 +21,9 @@ describe('(RF01): Cadastro de novos usuários', () => {
         app.useGlobalPipes(new ZodValidationPipe());
         app.setGlobalPrefix('api'); 
         await app.init();
+
+        prisma = app.get(PrismaService);
+        await prisma.users.deleteMany();
 
     })
 

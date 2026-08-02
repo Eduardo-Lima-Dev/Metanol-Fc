@@ -6,6 +6,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
+import { TeamSplitModule } from './team-split/team-split.module';
 import { APP_GUARD } from '@nestjs/core';
 
 @Module({
@@ -26,6 +27,7 @@ import { APP_GUARD } from '@nestjs/core';
     PrismaModule,
     AuthModule,
     HealthModule,
+    TeamSplitModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { averageValueSchema } from "./player.schema";
 
 // Pesos de cada atributo na função de fitness (RF05.4, RF06.4).
 export const teamSplitWeightsSchema = z.object({
@@ -64,3 +65,35 @@ export const teamSplitSchema = z.object({
   teams: z.array(teamSchema),
 });
 export type TeamSplit = z.infer<typeof teamSplitSchema>;
+
+// Jogador de entrada para o motor do AG isolado (sem vínculo com Racha/Player
+// persistidos — atributos informados diretamente na requisição).
+export const teamSplitPlayerInputSchema = z.object({
+  id: z.string().min(1),
+  average: averageValueSchema,
+  goals: z.number().int().min(0),
+  assists: z.number().int().min(0),
+});
+export type TeamSplitPlayerInput = z.infer<typeof teamSplitPlayerInputSchema>;
+
+export const generateTeamSplitSchema = z
+  .object({
+    players: z.array(teamSplitPlayerInputSchema).min(1),
+    params: teamSplitParamsSchema,
+  })
+  .refine((v) => v.players.length >= v.params.numberOfTeams, {
+    message: "O número de jogadores deve ser ao menos igual ao número de times.",
+    path: ["players"],
+  })
+  .refine((v) => new Set(v.players.map((p) => p.id)).size === v.players.length, {
+    message: "IDs de jogadores duplicados.",
+    path: ["players"],
+  });
+export type GenerateTeamSplitInput = z.infer<typeof generateTeamSplitSchema>;
+
+export const teamSplitResultSchema = z.object({
+  teams: z.array(teamSchema),
+  bestFitness: z.number(),
+  params: teamSplitParamsSchema,
+});
+export type TeamSplitResult = z.infer<typeof teamSplitResultSchema>;

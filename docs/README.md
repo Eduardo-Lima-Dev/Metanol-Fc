@@ -10,6 +10,8 @@
 - [`especificacao-testes/`](./especificacao-testes) — especificação de testes em BDD, um requisito funcional por arquivo.
 - [`api/`](./api) — contratos e documentação da API (endpoints, autenticação, versionamento).
 - [`processo/`](./processo) — fluxo de trabalho do time: branches, Pull Requests, padrão de commits.
+- [`status-implementacao.md`](./status-implementacao.md) — acompanhamento vivo do que já foi
+  implementado no código versus os requisitos funcionais e não funcionais.
 
 ## Convenções
 

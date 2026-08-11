@@ -10,8 +10,11 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ZodValidationPipe());
   app.setGlobalPrefix('api');
-
-  const port = process.env.PORT || 3338
+  app.enableCors({
+    origin: process.env.CORS_ORIGIN ?? '*',
+    credentials: true,
+  });
+  const port = process.env.PORT || 3338;
 
   await app.listen(port);
   console.log(`🚀 API running on http://localhost:${port}/api`);

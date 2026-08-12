@@ -38,7 +38,7 @@ export class AuthController {
 
   @Post('register')
   @HttpCode(201)
-  @Throttle({ login: { ttl: 60_000, limit: 5 } })
+  @Throttle({ login: { ttl: 60_000, limit: 6 } })
   async register(
     @Body() dto: RegisterDto,
     @Res({ passthrough: true }) res: Response,

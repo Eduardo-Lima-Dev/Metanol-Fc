@@ -39,6 +39,14 @@ export class AuthService {
     if (existingEmail)
       throw new ConflictException('O e-mail informado já está em uso.');
 
+    if (nickname) {
+      const existingNickname = await this.prisma.user.findUnique({
+        where: { nickname },
+      });
+      if (existingNickname)
+        throw new ConflictException('O nickname informado já está em uso.');
+    }
+
     try {
       const user = await this.prisma.user.create({
         data: {

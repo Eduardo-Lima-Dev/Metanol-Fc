@@ -31,6 +31,18 @@ describe('(RF04): Histórico de divisões', () => {
         });
     }
 
+    async function addMember(rachaId: string, adminCookie: string, memberEmail: string) {
+        const { cookie: memberCookie, userId: memberId } = await registerAndLogin(app, prisma, memberEmail);
+        await request(app.getHttpServer())
+            .post(`/api/rachas/${rachaId}/members`)
+            .set('Cookie', adminCookie)
+            .send({ userId: memberId });
+        const player = await prisma.player.findUniqueOrThrow({
+            where: { rachaId_userId: { rachaId, userId: memberId } },
+        });
+        return { memberCookie, memberId, playerId: player.id };
+    }
+
     beforeAll(async () => {
         ({ app, prisma } = await createTestApp());
         await cleanDatabase(prisma);
@@ -91,6 +103,77 @@ describe('(RF04): Histórico de divisões', () => {
             expect(response.body.id).toBe(teamSplit.id);
             expect(response.body.params.numberOfTeams).toBe(2);
             expect(response.body.teams).toHaveLength(1);
+            expect(response.body.createdByName).toBe('Usuário Teste');
+        });
+
+        it('Cenário 7: Admin registra o time vencedor de uma divisão', async () => {
+            const { rachaId, adminCookie, adminId } = await createRachaWithAdmin('Racha Resultado', 'rf04-admin7@metanolfc.com');
+            const { playerId } = await addMember(rachaId, adminCookie, 'rf04-membro7@metanolfc.com');
+            const teamSplit = await seedTeamSplit(rachaId, adminId, [
+                { index: 0, playerIds: [playerId] },
+                { index: 1, playerIds: [adminId] },
+            ]);
+
+            const response = await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${teamSplit.id}/result`)
+                .set('Cookie', adminCookie)
+                .send({ outcome: 'team_win', winningTeamIndex: 0 });
+
+            expect(response.status).toBe(200);
+            expect(response.body.outcome).toBe('team_win');
+            expect(response.body.winningTeamIndex).toBe(0);
+            expect(response.body.resultRecordedByName).toBe('Usuário Teste');
+        });
+
+        it('Cenário 8: Admin registra empate', async () => {
+            const { rachaId, adminCookie, adminId } = await createRachaWithAdmin('Racha Empate', 'rf04-admin8@metanolfc.com');
+            const teamSplit = await seedTeamSplit(rachaId, adminId, [{ index: 0, playerIds: [adminId] }]);
+
+            const response = await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${teamSplit.id}/result`)
+                .set('Cookie', adminCookie)
+                .send({ outcome: 'draw' });
+
+            expect(response.status).toBe(200);
+            expect(response.body.outcome).toBe('draw');
+            expect(response.body.winningTeamIndex).toBeNull();
+        });
+
+        it('Cenário 9: Ranking agrega vitórias por jogador entre divisões diferentes', async () => {
+            const { rachaId, adminCookie, adminId } = await createRachaWithAdmin('Racha Ranking', 'rf04-admin9@metanolfc.com');
+            const { playerId: memberPlayerId } = await addMember(rachaId, adminCookie, 'rf04-membro9@metanolfc.com');
+            const adminPlayer = await prisma.player.findUniqueOrThrow({
+                where: { rachaId_userId: { rachaId, userId: adminId } },
+            });
+
+            // Divisão 1: admin (time 0) vence, com o membro no time perdedor.
+            const split1 = await seedTeamSplit(rachaId, adminId, [
+                { index: 0, playerIds: [adminPlayer.id] },
+                { index: 1, playerIds: [memberPlayerId] },
+            ]);
+            await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${split1.id}/result`)
+                .set('Cookie', adminCookie)
+                .send({ outcome: 'team_win', winningTeamIndex: 0 });
+
+            // Divisão 2: dessa vez o time do admin (ainda índice 0) perde.
+            const split2 = await seedTeamSplit(rachaId, adminId, [
+                { index: 0, playerIds: [adminPlayer.id] },
+                { index: 1, playerIds: [memberPlayerId] },
+            ]);
+            await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${split2.id}/result`)
+                .set('Cookie', adminCookie)
+                .send({ outcome: 'team_win', winningTeamIndex: 1 });
+
+            const response = await request(app.getHttpServer())
+                .get(`/api/rachas/${rachaId}/team-splits/ranking`)
+                .set('Cookie', adminCookie);
+
+            expect(response.status).toBe(200);
+            const entries = response.body as Array<{ playerId: string; wins: number }>;
+            expect(entries.find((e) => e.playerId === adminPlayer.id)?.wins).toBe(1);
+            expect(entries.find((e) => e.playerId === memberPlayerId)?.wins).toBe(1);
         });
     });
 
@@ -124,6 +207,31 @@ describe('(RF04): Histórico de divisões', () => {
                 .get(`/api/rachas/${rachaId}/team-splits`);
 
             expect(response.status).toBe(401);
+        });
+
+        it('Cenário 10: Índice de time vencedor inválido é rejeitado (400)', async () => {
+            const { rachaId, adminCookie, adminId } = await createRachaWithAdmin('Racha Índice Inválido', 'rf04-admin10@metanolfc.com');
+            const teamSplit = await seedTeamSplit(rachaId, adminId, [{ index: 0, playerIds: [adminId] }]);
+
+            const response = await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${teamSplit.id}/result`)
+                .set('Cookie', adminCookie)
+                .send({ outcome: 'team_win', winningTeamIndex: 5 });
+
+            expect(response.status).toBe(400);
+        });
+
+        it('Cenário 11: Membro comum não pode registrar o resultado', async () => {
+            const { rachaId, adminCookie, adminId } = await createRachaWithAdmin('Racha Resultado Restrito', 'rf04-admin11@metanolfc.com');
+            const { memberCookie } = await addMember(rachaId, adminCookie, 'rf04-membro11@metanolfc.com');
+            const teamSplit = await seedTeamSplit(rachaId, adminId, [{ index: 0, playerIds: [adminId] }]);
+
+            const response = await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${teamSplit.id}/result`)
+                .set('Cookie', memberCookie)
+                .send({ outcome: 'draw' });
+
+            expect(response.status).toBe(403);
         });
     });
 })

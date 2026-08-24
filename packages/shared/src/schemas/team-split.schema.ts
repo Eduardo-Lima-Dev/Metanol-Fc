@@ -55,16 +55,51 @@ export const teamSchema = z.object({
 });
 export type Team = z.infer<typeof teamSchema>;
 
+// Resultado da partida (RF04 extra): times não têm identidade persistente
+// entre divisões diferentes (o índice é recriado a cada geração), então o
+// resultado é só "quem venceu nessa ocasião" — o ranking por jogador é quem
+// agrega isso ao longo do tempo (ver teamSplitPlayerRankingEntrySchema).
+export const teamSplitOutcomeSchema = z.enum(["team_win", "draw"]);
+export type TeamSplitOutcome = z.infer<typeof teamSplitOutcomeSchema>;
+
+export const recordTeamSplitResultSchema = z
+  .object({
+    outcome: teamSplitOutcomeSchema,
+    // Obrigatório quando outcome = "team_win"; ignorado quando "draw".
+    winningTeamIndex: z.number().int().min(0).optional(),
+  })
+  .refine((data) => data.outcome !== "team_win" || data.winningTeamIndex !== undefined, {
+    message: "Informe o índice do time vencedor",
+    path: ["winningTeamIndex"],
+  });
+export type RecordTeamSplitResultInput = z.infer<typeof recordTeamSplitResultSchema>;
+
 // Registro de histórico persistido a cada divisão gerada (RF04.1, RF05.7).
+// `createdByName`/`resultRecordedByName` são resolvidos pela API, não
+// persistidos — evita devolver só um UUID cru pra "quem fez a divisão".
 export const teamSplitSchema = z.object({
   id: z.string().uuid(),
   rachaId: z.string().uuid(),
   createdBy: z.string().uuid(),
+  createdByName: z.string(),
   createdAt: z.coerce.date(),
   params: teamSplitParamsSchema,
   teams: z.array(teamSchema),
+  outcome: teamSplitOutcomeSchema.nullable(),
+  winningTeamIndex: z.number().int().min(0).nullable(),
+  resultRecordedBy: z.string().uuid().nullable(),
+  resultRecordedByName: z.string().nullable(),
+  resultRecordedAt: z.coerce.date().nullable(),
 });
 export type TeamSplit = z.infer<typeof teamSplitSchema>;
+
+// Ranking de vitórias por jogador dentro de um racha (RF04 extra).
+export const teamSplitPlayerRankingEntrySchema = z.object({
+  playerId: z.string().uuid(),
+  name: z.string(),
+  wins: z.number().int().min(0),
+});
+export type TeamSplitPlayerRankingEntry = z.infer<typeof teamSplitPlayerRankingEntrySchema>;
 
 // Jogador de entrada para o motor do AG isolado (sem vínculo com Racha/Player
 // persistidos — atributos informados diretamente na requisição).

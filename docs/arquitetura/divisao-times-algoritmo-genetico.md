@@ -23,9 +23,11 @@ apps/api/src/team-split/
   team-split.controller.ts         // POST /rachas/:rachaId/team-splits/generate
   team-split.service.ts            // busca jogadores reais, chama o motor, persiste no histórico
   dto/create-team-split.dto.ts
+  dto/record-team-split-result.dto.ts
+  guards/team-split-generate.guard.ts // admin sempre; membro só se racha.teamSplitOpenToMembers
   history/
-    team-split-history.controller.ts // GET /rachas/:rachaId/team-splits(/:teamSplitId)
-    team-split-history.service.ts    // RF04: cria e consulta o histórico persistido
+    team-split-history.controller.ts // GET .../team-splits(/:id|/ranking), PATCH .../:id/result
+    team-split-history.service.ts    // RF04: histórico, resultado da partida (RF04.4) e ranking
   engine/
     team-sizes.ts    // RF06.3: tamanho-alvo de cada time
     chromosome.ts     // representação do cromossomo + população inicial

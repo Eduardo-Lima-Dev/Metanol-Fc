@@ -1,8 +1,10 @@
-import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Query, Req, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guards";
-import { RachaMemberGuard } from "src/racha/guards/racha-role.guard";
+import type { AuthenticatedRequest } from "src/auth/types/authenticated-request";
+import { RachaAdminGuard, RachaMemberGuard } from "src/racha/guards/racha-role.guard";
 import { TeamSplitHistoryService } from "./team-split-history.service";
 import { ListTeamSplitsDto } from "../dto/list-team-splits.dto";
+import { RecordTeamSplitResultDto } from "../dto/record-team-split-result.dto";
 
 @Controller("rachas/:rachaId/team-splits")
 @UseGuards(JwtAuthGuard, RachaMemberGuard)
@@ -14,8 +16,26 @@ export class TeamSplitHistoryController {
     return this.historyService.findMany(rachaId, query);
   }
 
+  // Precisa vir antes de ":teamSplitId" — senão "ranking" seria interpretado
+  // como um id de divisão.
+  @Get("ranking")
+  getPlayerRanking(@Param("rachaId") rachaId: string) {
+    return this.historyService.getPlayerRanking(rachaId);
+  }
+
   @Get(":teamSplitId")
   findOne(@Param("rachaId") rachaId: string, @Param("teamSplitId") teamSplitId: string) {
     return this.historyService.findOne(rachaId, teamSplitId);
+  }
+
+  @Patch(":teamSplitId/result")
+  @UseGuards(RachaAdminGuard)
+  recordResult(
+    @Param("rachaId") rachaId: string,
+    @Param("teamSplitId") teamSplitId: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: RecordTeamSplitResultDto,
+  ) {
+    return this.historyService.recordResult(rachaId, teamSplitId, req.user.id, dto);
   }
 }

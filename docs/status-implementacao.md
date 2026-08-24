@@ -48,7 +48,7 @@ continuam sendo a fonte de verdade sobre *o que* deve ser construído.
 
 | Item | Status | Onde |
 |------|--------|------|
-| RF04.1 Persistir registro a cada divisão gerada | 🟡 | Tabela e `TeamSplitHistoryService.create` prontos ([`apps/api/src/team-split/history`](../apps/api/src/team-split/history)); falta ser acionado pelo fluxo de geração (RF05.7, Etapa 4) |
+| RF04.1 Persistir registro a cada divisão gerada | ✅ | `TeamSplitService.generate` chama `TeamSplitHistoryService.create` ao final de cada geração |
 | RF04.2 Consultar histórico de um racha, ordenado por data | ✅ | `GET /rachas/:rachaId/team-splits` (paginado) |
 | RF04.3 Visualizar parâmetros usados em cada divisão | ✅ | `GET /rachas/:rachaId/team-splits/:teamSplitId` |
 
@@ -56,13 +56,13 @@ continuam sendo a fonte de verdade sobre *o que* deve ser construído.
 
 | Item | Status | Onde |
 |------|--------|------|
-| RF05.1 Iniciar divisão informando jogadores presentes | 🟡 | [`team-split.controller.ts`](../apps/api/src/team-split/team-split.controller.ts) recebe jogadores direto no body, sem vínculo a um racha persistido |
+| RF05.1 Iniciar divisão informando jogadores presentes | ✅ | `POST /rachas/:rachaId/team-splits/generate`, restrito ao admin do racha (`RachaAdminGuard`) |
 | RF05.2 Representação do cromossomo | ✅ | [`engine/chromosome.ts`](../apps/api/src/team-split/engine/chromosome.ts) |
 | RF05.3 População inicial respeitando tamanho dos times | ✅ | `engine/chromosome.ts` + `engine/team-sizes.ts` |
 | RF05.4 Função de fitness com pesos configuráveis | ✅ | [`engine/fitness.ts`](../apps/api/src/team-split/engine/fitness.ts) |
 | RF05.5 Seleção, crossover + correção, mutação por translocação | ✅ | [`engine/operators.ts`](../apps/api/src/team-split/engine/operators.ts) — coberto por `operators.spec.ts` |
 | RF05.6 Parâmetros configuráveis com defaults | ✅ | `defaultGeneticAlgorithmParams` em `packages/shared` |
-| RF05.7 Retorno + persistência no histórico | 🟡 | Retorna o melhor cromossomo; não persiste (depende do RF04) |
+| RF05.7 Retorno + persistência no histórico | ✅ | `TeamSplitService.generate` monta os times e persiste via `TeamSplitHistoryService` |
 
 Detalhamento do algoritmo em
 [`arquitetura/divisao-times-algoritmo-genetico.md`](./arquitetura/divisao-times-algoritmo-genetico.md).
@@ -101,10 +101,8 @@ Detalhamento do algoritmo em
 
 ## Lacunas críticas (ordem sugerida de ataque)
 
-1. **Conectar a geração de divisão (RF05) ao histórico e a jogadores reais**,
-   removendo o endpoint isolado `POST /team-split/generate` e persistindo o
-   resultado via `TeamSplitHistoryService.create` já pronto (fecha RF04.1 e
-   RF05.1/RF05.7).
+1. **Edição de perfil (RF01.5)** — schema `updateUserProfileSchema` já existe em
+   `packages/shared`, falta só o endpoint (`GET`/`PATCH /users/me`).
 2. **Telas de produto em `apps/web`/`apps/app`**, hoje inteiramente ausentes.
 3. **Observabilidade (Sentry) e infraestrutura de deploy**, antes de expor o sistema
    fora do ambiente local.

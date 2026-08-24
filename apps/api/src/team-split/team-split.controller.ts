@@ -1,15 +1,22 @@
-import { Body, Controller, HttpCode, Post } from '@nestjs/common';
-import type { TeamSplitResult } from '@metanol/shared';
+import { Body, Controller, HttpCode, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
+import type { AuthenticatedRequest } from 'src/auth/types/authenticated-request';
+import { RachaAdminGuard } from 'src/racha/guards/racha-role.guard';
 import { TeamSplitService } from './team-split.service';
-import { GenerateTeamSplitDto } from './dto/generate-team-split.dto';
+import { CreateTeamSplitDto } from './dto/create-team-split.dto';
 
-@Controller('team-split')
+@Controller('rachas/:rachaId/team-splits')
+@UseGuards(JwtAuthGuard, RachaAdminGuard)
 export class TeamSplitController {
   constructor(private readonly teamSplitService: TeamSplitService) {}
 
   @Post('generate')
-  @HttpCode(200)
-  generate(@Body() dto: GenerateTeamSplitDto): TeamSplitResult {
-    return this.teamSplitService.generate(dto);
+  @HttpCode(201)
+  generate(
+    @Param('rachaId') rachaId: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: CreateTeamSplitDto,
+  ) {
+    return this.teamSplitService.generate(rachaId, req.user.id, dto);
   }
 }

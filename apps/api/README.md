@@ -46,11 +46,18 @@ $ pnpm run start:prod
 
 ## Run tests
 
+Os testes e2e rodam contra um banco Postgres **separado** do banco de desenvolvimento,
+pra não apagar dados locais toda vez que você rodar a suíte (os testes limpam as tabelas
+entre specs). Copie `.env.test.example` para `.env.test` e aponte `DATABASE_URL` para um
+banco diferente do usado em `.env` (ex.: `metanol_fc_test` em vez de `metanol_fc`). O
+script `test:e2e` aplica as migrations pendentes nesse banco automaticamente antes de
+rodar (`pretest:e2e`).
+
 ```bash
 # unit tests
 $ pnpm run test
 
-# e2e tests
+# e2e tests (usa .env.test)
 $ pnpm run test:e2e
 
 # test coverage

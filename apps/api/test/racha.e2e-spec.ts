@@ -3,6 +3,7 @@ import request from 'supertest';
 import { PrismaService } from "src/prisma/prisma.service";
 import { createTestApp } from "./utils/create-test-app";
 import { registerAndLogin as registerAndLoginUtil } from "./utils/register-and-login";
+import { cleanDatabase } from "./utils/clean-database";
 
 describe('(RF02): Gerenciamento de rachas', () => {
     let app: INestApplication;
@@ -14,10 +15,7 @@ describe('(RF02): Gerenciamento de rachas', () => {
 
     beforeAll(async () => {
         ({ app, prisma } = await createTestApp());
-        await prisma.player.deleteMany();
-        await prisma.rachaMember.deleteMany();
-        await prisma.racha.deleteMany();
-        await prisma.users.deleteMany();
+        await cleanDatabase(prisma);
     })
 
     afterAll(async () => {

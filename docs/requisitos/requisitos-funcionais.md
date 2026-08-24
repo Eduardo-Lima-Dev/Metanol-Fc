@@ -1,7 +1,7 @@
 # Requisitos Funcionais — Metanol FC
 
 - Status: em revisão
-- Data: 2026-07-03
+- Data: 2026-08-24
 
 ## RF01 — Cadastro e Login
 
@@ -26,7 +26,8 @@
 - **RF03.3** Apenas os administradores do racha podem atualizar gols e assistências dos jogadores após cada partida.
 - **RF03.4** A média do jogador é definida por duas fontes possíveis, com a avaliação pública prevalecendo como fonte de verdade:
   - **RF03.4.1** Upload de um arquivo `.txt` pelo administrador, contendo os jogadores e suas respectivas médias — usado como valor inicial/manual (ex.: para importar histórico anterior ao sistema).
-  - **RF03.4.2** Uma aba/rota de avaliação de jogadores, pública dentro do racha, onde os jogadores atribuem notas a outros jogadores em uma escala de **0 a 5, admitindo valores decimais** (ex.: 2,5). O período em que essa avaliação fica aberta para preenchimento é controlado pelo administrador (abrir/fechar). Um jogador não pode avaliar a si mesmo, e não pode alterar sua nota depois de enviada. Quando há avaliações públicas para um jogador, sua média é calculada automaticamente como a **mediana** das notas recebidas (sem número mínimo de avaliações exigido), prevalecendo sobre o valor importado via `.txt`. Antes de existir qualquer avaliação pública para o jogador, o valor importado via `.txt` (RF03.4.1) vale como fallback da média.
+  - **RF03.4.2** Uma aba/rota de avaliação de jogadores, pública dentro do racha, onde os jogadores atribuem notas a outros jogadores em uma escala de **0 a 5, admitindo valores decimais** (ex.: 2,5), ou optar por **"não sei"/"não consigo opinar"** em vez de uma nota — essa abstenção fica registrada (para diferenciar de "ainda não avaliou"), mas não entra no cálculo da mediana. O período em que essa avaliação fica aberta para preenchimento é controlado pelo administrador (abrir/fechar). Um jogador não pode avaliar a si mesmo, e não pode alterar sua nota (ou abstenção) depois de enviada. Quando há notas públicas (excluindo abstenções) para um jogador, sua média é calculada automaticamente como a **mediana** dessas notas (sem número mínimo exigido), prevalecendo sobre o valor importado via `.txt`. Antes de existir qualquer nota pública para o jogador, o valor importado via `.txt` (RF03.4.1) vale como fallback da média.
+- **RF03.5** *(extensão)* O administrador pode adicionar um **jogador avulso**: alguém sem conta no sistema que participa do racha apenas naquela ocasião. O admin informa o nome e, opcionalmente, o overall (0–5) diretamente na hora, já que não há avaliação pública nem `.txt` anteriores para essa pessoa. Por padrão o jogador avulso fica salvo permanentemente no racha em que foi adicionado (aparece no histórico normalmente e pode ser avaliado como qualquer outro jogador); se ele participar de outro racha, ou tiver uma conta própria criada depois, isso não é feito automaticamente — precisa ser adicionado de novo manualmente ou passar pelo cadastro normal (RF01.1).
 
 ## RF04 — Histórico de Times
 

@@ -6,19 +6,21 @@ export const evaluationSchema = z.object({
   rachaId: z.string().uuid(),
   evaluatedPlayerId: z.string().uuid(),
   evaluatorPlayerId: z.string().uuid(),
-  score: averageValueSchema,
+  // Nulo = abstenção registrada ("não sei"/"não consigo opinar").
+  score: averageValueSchema.nullable(),
   createdAt: z.coerce.date(),
 });
 export type Evaluation = z.infer<typeof evaluationSchema>;
 
-// Não há schema de atualização: avaliação é imutável após o envio (RF03.4.2).
-// Exportado sem o `.refine()` para permitir `.omit()` em DTOs derivados (ex.:
-// quando `evaluatorPlayerId` é derivado do usuário autenticado, não do body).
+// Não há schema de atualização: avaliação é imutável após o envio, mesmo
+// quando é uma abstenção (RF03.4.2). Exportado sem o `.refine()` para
+// permitir `.omit()` em DTOs derivados (ex.: quando `evaluatorPlayerId` é
+// derivado do usuário autenticado, não do body).
 export const createEvaluationObjectSchema = z.object({
   rachaId: z.string().uuid(),
   evaluatedPlayerId: z.string().uuid(),
   evaluatorPlayerId: z.string().uuid(),
-  score: averageValueSchema,
+  score: averageValueSchema.nullable(),
 });
 
 export const createEvaluationSchema = createEvaluationObjectSchema.refine(

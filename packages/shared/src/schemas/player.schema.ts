@@ -5,7 +5,12 @@ export const averageValueSchema = z.number().min(0).max(5);
 export const playerSchema = z.object({
   id: z.string().uuid(),
   rachaId: z.string().uuid(),
-  userId: z.string().uuid(),
+  // Nulo para jogador avulso (participa deste racha só por uma vez, sem
+  // conta no sistema) — nesse caso `guestName` é quem identifica o jogador.
+  userId: z.string().uuid().nullable(),
+  guestName: z.string().min(1).nullable(),
+  // Nome para exibição: o do usuário vinculado, ou `guestName` se avulso.
+  name: z.string().min(1),
   goals: z.number().int().min(0),
   assists: z.number().int().min(0),
   // Valor importado via .txt pelo admin (RF03.4.1) — usado como fallback.
@@ -16,6 +21,16 @@ export const playerSchema = z.object({
   average: averageValueSchema.nullable(),
 });
 export type Player = z.infer<typeof playerSchema>;
+
+// Jogador avulso (RF03 extra): admin adiciona alguém que participa deste
+// racha só naquela ocasião, sem conta no sistema — o overall é informado
+// diretamente, já que não há avaliação pública nem histórico anteriores.
+export const addGuestPlayerSchema = z.object({
+  rachaId: z.string().uuid(),
+  name: z.string().min(1),
+  manualAverage: averageValueSchema.optional(),
+});
+export type AddGuestPlayerInput = z.infer<typeof addGuestPlayerSchema>;
 
 // Atualização de gols/assistências — restrita a administradores do racha (RF03.3).
 export const updatePlayerStatsSchema = z.object({

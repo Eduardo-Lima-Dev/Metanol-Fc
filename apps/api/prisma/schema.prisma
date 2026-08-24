@@ -64,8 +64,11 @@ model Player {
   id            String  @id @default(uuid())
   rachaId       String
   racha         Racha   @relation(fields: [rachaId], references: [id], onDelete: Cascade)
-  userId        String
-  user          Users   @relation(fields: [userId], references: [id])
+  // Nulo para jogador avulso (RF03 extra): não tem conta no sistema, só
+  // participa deste racha por uma vez. `guestName` é obrigatório nesse caso.
+  userId        String?
+  user          Users?  @relation(fields: [userId], references: [id])
+  guestName     String?
   goals         Int     @default(0)
   assists       Int     @default(0)
   manualAverage Float?
@@ -84,7 +87,8 @@ model Evaluation {
   evaluatedPlayer   Player   @relation("EvaluatedPlayer", fields: [evaluatedPlayerId], references: [id], onDelete: Cascade)
   evaluatorPlayerId String
   evaluatorPlayer   Player   @relation("EvaluatorPlayer", fields: [evaluatorPlayerId], references: [id], onDelete: Cascade)
-  score             Float
+  // Nulo = abstenção registrada ("não sei"/"não consigo opinar" — RF03 extra).
+  score             Float?
   createdAt         DateTime @default(now())
 
   @@unique([rachaId, evaluatedPlayerId, evaluatorPlayerId])

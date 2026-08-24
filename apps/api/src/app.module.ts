@@ -7,6 +7,8 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { TeamSplitModule } from './team-split/team-split.module';
+import { RachaModule } from './racha/racha.module';
+import { PlayersModule } from './players/players.module';
 import { APP_GUARD } from '@nestjs/core';
 
 @Module({
@@ -28,6 +30,8 @@ import { APP_GUARD } from '@nestjs/core';
     AuthModule,
     HealthModule,
     TeamSplitModule,
+    RachaModule,
+    PlayersModule,
   ],
   controllers: [AppController],
   providers: [

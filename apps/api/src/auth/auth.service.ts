@@ -19,7 +19,7 @@ export class AuthService {
 
     if (!validate) throw new UnauthorizedException("Email ou senha invalidos")
 
-    return this.jwt.sign({ email: user.email })
+    return this.jwt.sign({ sub: user.id, email: user.email })
 
   }
 
@@ -35,7 +35,7 @@ export class AuthService {
         password_hash: await bcrypt.hash(password, 12)
       }
     })
-    return this.jwt.sign({ email: user.email })
+    return this.jwt.sign({ sub: user.id, email: user.email })
   }
 
 }

@@ -75,6 +75,14 @@ export class RachaService {
     });
   }
 
+  async setTeamSplitOpenToMembers(rachaId: string, open: boolean) {
+    await this.findOne(rachaId);
+    return this.prisma.racha.update({
+      where: { id: rachaId },
+      data: { teamSplitOpenToMembers: open },
+    });
+  }
+
   async addMember(rachaId: string, userId: string) {
     await this.findOne(rachaId);
 

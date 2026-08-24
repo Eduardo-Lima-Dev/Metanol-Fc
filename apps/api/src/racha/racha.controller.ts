@@ -17,6 +17,7 @@ import { RachaService } from "./racha.service";
 import { CreateRachaDto } from "./dto/create-racha.dto";
 import { UpdateRachaDto } from "./dto/update-racha.dto";
 import { SetEvaluationsOpenDto } from "./dto/set-evaluations-open.dto";
+import { SetTeamSplitOpenToMembersDto } from "./dto/set-team-split-open-to-members.dto";
 import { AddRachaMemberDto } from "./dto/add-racha-member.dto";
 import { SetRachaMemberRoleDto } from "./dto/set-racha-member-role.dto";
 
@@ -54,6 +55,15 @@ export class RachaController {
     @Body() dto: SetEvaluationsOpenDto,
   ) {
     return this.rachaService.setEvaluationsOpen(rachaId, dto.open);
+  }
+
+  @Patch(":rachaId/team-split-open-to-members")
+  @UseGuards(RachaAdminGuard)
+  setTeamSplitOpenToMembers(
+    @Param("rachaId") rachaId: string,
+    @Body() dto: SetTeamSplitOpenToMembersDto,
+  ) {
+    return this.rachaService.setTeamSplitOpenToMembers(rachaId, dto.open);
   }
 
   @Post(":rachaId/members")

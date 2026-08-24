@@ -57,7 +57,7 @@ continuam sendo a fonte de verdade sobre *o que* deve ser construído.
 
 | Item | Status | Onde |
 |------|--------|------|
-| RF05.1 Iniciar divisão informando jogadores presentes | ✅ | `POST /rachas/:rachaId/team-splits/generate`, restrito ao admin do racha (`RachaAdminGuard`) |
+| RF05.1 Iniciar divisão informando jogadores presentes | ✅ | `POST /rachas/:rachaId/team-splits/generate` (`TeamSplitGenerateGuard`: admin sempre pode; membro comum pode se `racha.teamSplitOpenToMembers` estiver ligado, `PATCH /rachas/:rachaId/team-split-open-to-members`) |
 | RF05.2 Representação do cromossomo | ✅ | [`engine/chromosome.ts`](../apps/api/src/team-split/engine/chromosome.ts) |
 | RF05.3 População inicial respeitando tamanho dos times | ✅ | `engine/chromosome.ts` + `engine/team-sizes.ts` |
 | RF05.4 Função de fitness com pesos configuráveis | ✅ | [`engine/fitness.ts`](../apps/api/src/team-split/engine/fitness.ts) |

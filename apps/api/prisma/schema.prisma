@@ -33,13 +33,17 @@ enum RachaMemberRole {
 }
 
 model Racha {
-  id              String   @id @default(uuid())
-  name            String
-  schedule        String?
-  evaluationsOpen Boolean  @default(false)
-  createdBy       String
-  creator         Users    @relation("RachaCreatedBy", fields: [createdBy], references: [id])
-  createdAt       DateTime @default(now())
+  id                     String   @id @default(uuid())
+  name                   String
+  schedule               String?
+  evaluationsOpen        Boolean  @default(false)
+  // Quando true, qualquer membro do racha pode gerar uma divisão de times
+  // (RF05 extra) — por padrão só o admin pode. Quem gerou e quando já ficam
+  // registrados no TeamSplit (createdBy/createdAt) independente disso.
+  teamSplitOpenToMembers Boolean  @default(false)
+  createdBy              String
+  creator                Users    @relation("RachaCreatedBy", fields: [createdBy], references: [id])
+  createdAt              DateTime @default(now())
 
   members     RachaMember[]
   players     Player[]

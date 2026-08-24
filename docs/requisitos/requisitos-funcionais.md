@@ -37,7 +37,7 @@
 
 ## RF05 — Divisão de Times via Algoritmo Genético
 
-- **RF05.1** O sistema deve permitir que o administrador do racha inicie um processo de divisão de times, informando os jogadores presentes naquele dia.
+- **RF05.1** O sistema deve permitir que o administrador do racha inicie um processo de divisão de times, informando os jogadores presentes naquele dia. *(extensão)* O administrador pode ligar uma opção (`teamSplitOpenToMembers`, desligada por padrão) que permite que **qualquer participante** do racha inicie a divisão, não só o admin. Em qualquer um dos dois casos, quem gerou e quando (data/hora) ficam registrados junto do resultado no histórico (RF04/RF05.7).
 - **RF05.2** Representação do indivíduo (cromossomo): um vetor de tamanho N (nº de jogadores presentes), onde a posição *i* representa o jogador *i* e o valor armazenado indica o time ao qual ele foi alocado.
 - **RF05.3** População inicial: o sistema deve gerar aleatoriamente um conjunto de cromossomos (tamanho configurável), já respeitando o nº de jogadores por time definido em RF06.
 - **RF05.4** Função de fitness: deve avaliar o quão equilibrados estão os times, minimizando a diferença de nível entre eles. Como o jogador tem 3 atributos (média, gols, assistências), a fitness deve combinar a diferença desses atributos entre os times — com peso configurável por atributo, para permitir priorizar, por exemplo, a média sobre gols/assistências.

@@ -10,6 +10,7 @@ import { TeamSplitModule } from './team-split/team-split.module';
 import { RachaModule } from './racha/racha.module';
 import { PlayersModule } from './players/players.module';
 import { EvaluationsModule } from './evaluations/evaluations.module';
+import { UsersModule } from './users/users.module';
 import { APP_GUARD } from '@nestjs/core';
 
 @Module({
@@ -34,6 +35,7 @@ import { APP_GUARD } from '@nestjs/core';
     RachaModule,
     PlayersModule,
     EvaluationsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [

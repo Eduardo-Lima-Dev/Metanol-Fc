@@ -23,7 +23,7 @@ continuam sendo a fonte de verdade sobre *o que* deve ser construído.
 | RF01.2 Validação de e-mail e senha mínima | ✅ | `registerUserSchema`/`loginSchema` em [`packages/shared`](../packages/shared/src/schemas/user.schema.ts) |
 | RF01.3 Hash de senha | ✅ | `bcrypt` em `auth.service.ts` |
 | RF01.4 Login com erro claro | ✅ | `auth.service.ts` |
-| RF01.5 Edição de perfil *(sugestão)* | ❌ | Schema `updateUserProfileSchema` existe, sem endpoint |
+| RF01.5 Edição de perfil *(sugestão)* | ✅ | [`apps/api/src/users`](../apps/api/src/users) — `GET`/`PATCH /users/me` |
 
 ## RF02 — Gerenciamento de Rachas
 
@@ -95,7 +95,7 @@ Detalhamento do algoritmo em
 
 | Camada | Estado |
 |--------|--------|
-| `apps/api` | Módulos `auth`, `team-split` (+ histórico), `racha`, `players` e `evaluations` implementados; `prisma/schema.prisma` tem `Users`, `Racha`, `RachaMember`, `Player`, `Evaluation`, `TeamSplit` |
+| `apps/api` | Módulos `auth`, `team-split` (+ histórico), `racha`, `players`, `evaluations` e `users` implementados; `prisma/schema.prisma` tem `Users`, `Racha`, `RachaMember`, `Player`, `Evaluation`, `TeamSplit` |
 | `apps/web` | Boilerplate padrão do Vite — nenhuma tela do produto construída |
 | `apps/app` | Boilerplate padrão do Expo — nenhuma tela do produto construída |
 | `packages/shared` | Contratos Zod cobrindo praticamente todo o domínio (RF01–RF06); `racha`/`racha-member`/`player`/`evaluation`/`team-split` já consumidos pela API |

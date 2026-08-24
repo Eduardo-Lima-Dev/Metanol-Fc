@@ -12,15 +12,20 @@ export const evaluationSchema = z.object({
 export type Evaluation = z.infer<typeof evaluationSchema>;
 
 // Não há schema de atualização: avaliação é imutável após o envio (RF03.4.2).
-export const createEvaluationSchema = z
-  .object({
-    rachaId: z.string().uuid(),
-    evaluatedPlayerId: z.string().uuid(),
-    evaluatorPlayerId: z.string().uuid(),
-    score: averageValueSchema,
-  })
-  .refine((data) => data.evaluatedPlayerId !== data.evaluatorPlayerId, {
+// Exportado sem o `.refine()` para permitir `.omit()` em DTOs derivados (ex.:
+// quando `evaluatorPlayerId` é derivado do usuário autenticado, não do body).
+export const createEvaluationObjectSchema = z.object({
+  rachaId: z.string().uuid(),
+  evaluatedPlayerId: z.string().uuid(),
+  evaluatorPlayerId: z.string().uuid(),
+  score: averageValueSchema,
+});
+
+export const createEvaluationSchema = createEvaluationObjectSchema.refine(
+  (data) => data.evaluatedPlayerId !== data.evaluatorPlayerId,
+  {
     message: "Um jogador não pode avaliar a si mesmo",
     path: ["evaluatedPlayerId"],
-  });
+  },
+);
 export type CreateEvaluationInput = z.infer<typeof createEvaluationSchema>;

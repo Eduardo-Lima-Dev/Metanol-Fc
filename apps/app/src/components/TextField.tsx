@@ -7,10 +7,23 @@ type TextFieldProps = {
   error?: string;
 } & Pick<
   TextInputProps,
-  "value" | "onChangeText" | "placeholder" | "secureTextEntry" | "keyboardType" | "autoCapitalize"
+  | "value"
+  | "onChangeText"
+  | "placeholder"
+  | "secureTextEntry"
+  | "keyboardType"
+  | "autoCapitalize"
+  | "multiline"
+  | "numberOfLines"
 >;
 
-export function TextField({ label, error, secureTextEntry, ...inputProps }: TextFieldProps) {
+export function TextField({
+  label,
+  error,
+  secureTextEntry,
+  multiline,
+  ...inputProps
+}: TextFieldProps) {
   const [isVisible, setIsVisible] = useState(false);
   const isPassword = !!secureTextEntry;
 
@@ -20,11 +33,15 @@ export function TextField({ label, error, secureTextEntry, ...inputProps }: Text
       <View className="justify-center">
         <TextInput
           {...inputProps}
+          multiline={multiline}
+          textAlignVertical={multiline ? "top" : "center"}
           secureTextEntry={isPassword && !isVisible}
           placeholderTextColor="#8A8A8A"
           className={`rounded-2xl border bg-charcoal/[0.03] px-4 py-3.5 text-base text-charcoal dark:bg-cream/[0.05] dark:text-cream ${
             isPassword ? "pr-12" : ""
-          } ${error ? "border-red-500" : "border-charcoal/15 dark:border-cream/15"}`}
+          } ${multiline ? "min-h-32" : ""} ${
+            error ? "border-red-500" : "border-charcoal/15 dark:border-cream/15"
+          }`}
         />
         {isPassword ? (
           <Pressable

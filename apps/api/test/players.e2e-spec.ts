@@ -124,6 +124,26 @@ describe('(RF03): Jogadores e avaliações', () => {
             expect(targetPlayer.average).toBe(4.5);
         });
 
+        it('Cenário 13: Colar o conteúdo do .txt direto no corpo (sem arquivo) também importa as médias (RF03.4.1)', async () => {
+            const { rachaId, adminCookie } = await createRachaWithAdmin('Racha Colar Médias', 'rf03-admin13@metanolfc.com');
+            const { memberId } = await addMember(rachaId, adminCookie, 'rf03-membro13@metanolfc.com');
+            const member = await prisma.users.findUniqueOrThrow({ where: { id: memberId } });
+
+            const response = await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/players/import-averages`)
+                .set('Cookie', adminCookie)
+                .send({ content: `${member.email};3,5\n` });
+
+            expect(response.status).toBe(201);
+            expect(response.body[0].status).toBe('ok');
+
+            const listResponse = await request(app.getHttpServer())
+                .get(`/api/rachas/${rachaId}/players`)
+                .set('Cookie', adminCookie);
+            const memberPlayer = listResponse.body.find((p: { userId: string }) => p.userId === memberId);
+            expect(memberPlayer.average).toBe(3.5);
+        });
+
         it('Cenário 9: Admin adiciona jogador avulso com overall definido na hora', async () => {
             const { rachaId, adminCookie } = await createRachaWithAdmin('Racha Avulso', 'rf03-admin9@metanolfc.com');
 
@@ -281,6 +301,17 @@ describe('(RF03): Jogadores e avaliações', () => {
                 .send({ evaluatedPlayerId: targetPlayerId, score: 4 });
 
             expect(response.status).toBe(409);
+        });
+
+        it('Cenário 14: Importar médias sem enviar arquivo nem conteúdo é rejeitado (400)', async () => {
+            const { rachaId, adminCookie } = await createRachaWithAdmin('Racha Importação Vazia', 'rf03-admin14@metanolfc.com');
+
+            const response = await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/players/import-averages`)
+                .set('Cookie', adminCookie)
+                .send({});
+
+            expect(response.status).toBe(400);
         });
     });
 })

@@ -16,6 +16,7 @@ import { RachaAdminGuard, RachaMemberGuard } from "../racha/guards/racha-role.gu
 import { PlayersService } from "./players.service";
 import { UpdatePlayerStatsDto } from "./dto/update-player-stats.dto";
 import { AddGuestPlayerDto } from "./dto/add-guest-player.dto";
+import { ImportAveragesTextDto } from "./dto/import-averages-text.dto";
 
 @Controller("rachas/:rachaId/players")
 @UseGuards(JwtAuthGuard)
@@ -44,14 +45,18 @@ export class PlayersController {
     return this.playersService.addGuestPlayer(rachaId, dto);
   }
 
+  // Aceita tanto upload multipart (campo "file") quanto o conteúdo colado
+  // direto no corpo JSON (campo "content") — mesmo texto, mesma rota.
   @Post("import-averages")
   @UseGuards(RachaAdminGuard)
   @UseInterceptors(FileInterceptor("file"))
   importAverages(
     @Param("rachaId") rachaId: string,
-    @UploadedFile() file?: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File | undefined,
+    @Body() dto: ImportAveragesTextDto,
   ) {
-    if (!file) throw new BadRequestException("Arquivo .txt não enviado");
-    return this.playersService.importAverages(rachaId, file.buffer.toString("utf-8"));
+    const fileContent = file?.buffer.toString("utf-8") ?? dto.content;
+    if (!fileContent) throw new BadRequestException("Arquivo .txt não enviado");
+    return this.playersService.importAverages(rachaId, fileContent);
   }
 }

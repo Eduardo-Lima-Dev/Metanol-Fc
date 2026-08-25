@@ -39,6 +39,15 @@ export const updatePlayerStatsSchema = z.object({
 });
 export type UpdatePlayerStatsInput = z.infer<typeof updatePlayerStatsSchema>;
 
+// Colar o conteúdo do .txt de médias direto (alternativa ao upload de
+// arquivo, RF03.4.1) — mesmo formato, mesma rota; `content` fica opcional
+// aqui porque essa rota também aceita o upload multipart de arquivo, e nesse
+// caso quem valida a presença de um dos dois é o controller.
+export const importAveragesTextSchema = z.object({
+  content: z.string().min(1).optional(),
+});
+export type ImportAveragesTextInput = z.infer<typeof importAveragesTextSchema>;
+
 // Upload de arquivo .txt com médias (RF03.4.1).
 export const importPlayerAveragesSchema = z.object({
   rachaId: z.string().uuid(),

@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Query, Req, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guards";
-import type { AuthenticatedRequest } from "src/auth/types/authenticated-request";
-import { RachaAdminGuard, RachaMemberGuard } from "src/racha/guards/racha-role.guard";
+import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guards";
+import type { AuthenticatedRequest } from "../../auth/types/authenticated-request";
+import { RachaAdminGuard, RachaMemberGuard } from "../../racha/guards/racha-role.guard";
 import { TeamSplitHistoryService } from "./team-split-history.service";
 import { ListTeamSplitsDto } from "../dto/list-team-splits.dto";
 import { RecordTeamSplitResultDto } from "../dto/record-team-split-result.dto";

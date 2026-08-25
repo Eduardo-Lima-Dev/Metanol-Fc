@@ -10,8 +10,8 @@ import {
   Req,
   UseGuards,
 } from "@nestjs/common";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guards";
-import type { AuthenticatedRequest } from "src/auth/types/authenticated-request";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guards";
+import type { AuthenticatedRequest } from "../auth/types/authenticated-request";
 import { RachaAdminGuard, RachaMemberGuard } from "./guards/racha-role.guard";
 import { RachaService } from "./racha.service";
 import { CreateRachaDto } from "./dto/create-racha.dto";

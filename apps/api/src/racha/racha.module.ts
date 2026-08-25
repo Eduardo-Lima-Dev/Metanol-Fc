@@ -1,5 +1,5 @@
 import { Module } from "@nestjs/common";
-import { PlayersModule } from "src/players/players.module";
+import { PlayersModule } from "../players/players.module";
 import { RachaController } from "./racha.controller";
 import { RachaService } from "./racha.service";
 

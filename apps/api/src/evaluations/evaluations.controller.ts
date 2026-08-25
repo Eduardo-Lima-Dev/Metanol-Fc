@@ -1,7 +1,7 @@
 import { Body, Controller, Param, Post, Req, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guards";
-import type { AuthenticatedRequest } from "src/auth/types/authenticated-request";
-import { RachaMemberGuard } from "src/racha/guards/racha-role.guard";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guards";
+import type { AuthenticatedRequest } from "../auth/types/authenticated-request";
+import { RachaMemberGuard } from "../racha/guards/racha-role.guard";
 import { EvaluationsService } from "./evaluations.service";
 import { CreateEvaluationDto } from "./dto/create-evaluation.dto";
 

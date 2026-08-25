@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Patch, Query, Req, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guards";
-import type { AuthenticatedRequest } from "src/auth/types/authenticated-request";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guards";
+import type { AuthenticatedRequest } from "../auth/types/authenticated-request";
 import { UsersService } from "./users.service";
 import { UpdateUserProfileDto } from "./dto/update-user-profile.dto";
 import { FindUserByEmailDto } from "./dto/find-user-by-email.dto";

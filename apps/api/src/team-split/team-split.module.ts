@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { PlayersModule } from 'src/players/players.module';
+import { PlayersModule } from '../players/players.module';
 import { TeamSplitController } from './team-split.controller';
 import { TeamSplitService } from './team-split.service';
 import { TeamSplitHistoryController } from './history/team-split-history.controller';

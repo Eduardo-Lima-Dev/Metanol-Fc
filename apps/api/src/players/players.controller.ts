@@ -11,8 +11,8 @@ import {
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guards";
-import { RachaAdminGuard, RachaMemberGuard } from "src/racha/guards/racha-role.guard";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guards";
+import { RachaAdminGuard, RachaMemberGuard } from "../racha/guards/racha-role.guard";
 import { PlayersService } from "./players.service";
 import { UpdatePlayerStatsDto } from "./dto/update-player-stats.dto";
 import { AddGuestPlayerDto } from "./dto/add-guest-player.dto";

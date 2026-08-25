@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import type { Request } from "express";
 import type { RachaMemberRole } from "@metanol/shared";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../../prisma/prisma.service";
 
 export function resolveRachaId(request: Request): string | undefined {
   const params = request.params as Record<string, string | undefined>;

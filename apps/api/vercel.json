@@ -1,4 +1,4 @@
 {
-  "buildCommand": "cd ../.. && pnpm --filter @metanol/api exec prisma generate && pnpm exec turbo run build --filter=@metanol/api",
+  "buildCommand": "cd ../.. && pnpm exec turbo run build --filter=@metanol/api",
   "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
 }

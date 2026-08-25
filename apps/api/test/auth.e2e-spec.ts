@@ -31,6 +31,28 @@ describe('(RF01): Cadastro de novos usuários', () => {
             expect(response.body.message).toBe(
                 'Cadastro realizado com sucesso! Faça login para continuar.',
             );
+            expect(response.body.token).toEqual(expect.any(String));
+        });
+
+        it('Cenário 1.1: Login realizado com sucesso retorna o token no corpo', async () => {
+            await request(app.getHttpServer())
+                .post('/api/auth/register')
+                .send({
+                    name: 'Eduardo Lima',
+                    email: 'eduardo.lima.login@metanolfc.com',
+                    password: 'SenhaSegura123!',
+                });
+
+            const response = await request(app.getHttpServer())
+                .post('/api/auth/login')
+                .send({
+                    email: 'eduardo.lima.login@metanolfc.com',
+                    password: 'SenhaSegura123!',
+                });
+
+            expect(response.status).toBe(200);
+            expect(response.body.token).toEqual(expect.any(String));
+            expect(response.headers['set-cookie']).toBeDefined();
         });
 
         it('Cenário 2: Cadastro preenchendo o campo opcional de apelido', async () => {

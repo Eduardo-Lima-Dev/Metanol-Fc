@@ -23,7 +23,7 @@ export class AuthController {
             maxAge: 8 * 60 * 60 * 1000,
         })
 
-        return { message: dto.email }
+        return { message: dto.email, token }
     }
 
     @Post('register')
@@ -38,7 +38,7 @@ export class AuthController {
             maxAge: 8 * 60 * 60 * 1000,
         })
 
-        return { message: 'Cadastro realizado com sucesso! Faça login para continuar.' }
+        return { message: 'Cadastro realizado com sucesso! Faça login para continuar.', token }
     }
 
     @Post('logout')

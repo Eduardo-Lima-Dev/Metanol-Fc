@@ -3,6 +3,13 @@ import type { AddGuestPlayerInput, Player, UpdatePlayerStatsInput } from "@metan
 import { httpClient } from "../../core/api/httpClient";
 import { endpoints } from "../../core/api/endpoints";
 
+export type ImportAveragesResult = {
+  line: number;
+  identifier?: string;
+  status: "ok" | "error";
+  message?: string;
+};
+
 export function usePlayers(rachaId: string) {
   return useQuery({
     queryKey: ["rachas", rachaId, "players"],
@@ -34,7 +41,22 @@ export function useImportAverages(rachaId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (formData: FormData) =>
-      httpClient.uploadFile(endpoints.players.importAverages(rachaId), formData),
+      httpClient.uploadFile<ImportAveragesResult[]>(
+        endpoints.players.importAverages(rachaId),
+        formData,
+      ),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["rachas", rachaId, "players"] }),
+  });
+}
+
+export function useImportAveragesText(rachaId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (content: string) =>
+      httpClient.post<ImportAveragesResult[]>(endpoints.players.importAverages(rachaId), {
+        content,
+      }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: ["rachas", rachaId, "players"] }),
   });

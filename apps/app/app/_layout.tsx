@@ -5,17 +5,27 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { queryClient } from "../src/core/api/queryClient";
 import { ThemeProvider, useTheme } from "../src/core/theme/ThemeProvider";
+import { AuthProvider, useAuth } from "../src/core/auth/AuthProvider";
+import { LoadingSpinner } from "../src/components/LoadingSpinner";
 
 function RootNavigator() {
   const { theme } = useTheme();
+  const { status } = useAuth();
 
   return (
     <>
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
+      {status === "loading" ? (
+        <LoadingSpinner />
+      ) : (
+        <Stack screenOptions={{ headerShown: false }}>
+          {status === "authenticated" ? (
+            <Stack.Screen name="(tabs)" />
+          ) : (
+            <Stack.Screen name="(auth)" />
+          )}
+        </Stack>
+      )}
     </>
   );
 }
@@ -25,7 +35,9 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
-          <RootNavigator />
+          <AuthProvider>
+            <RootNavigator />
+          </AuthProvider>
         </ThemeProvider>
       </QueryClientProvider>
     </SafeAreaProvider>

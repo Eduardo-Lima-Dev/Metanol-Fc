@@ -4,8 +4,8 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
-import { PlayersService } from "src/players/players.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { PlayersService } from "../players/players.service";
 import type {
   CreateRachaInput,
   RachaMemberRole,

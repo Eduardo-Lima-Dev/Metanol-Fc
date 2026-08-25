@@ -1,8 +1,8 @@
 import { ConflictException, Injectable, NotFoundException } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import type { UpdateUserProfileInput } from "@metanol/shared";
-import type { Users } from "src/generated/prisma/client";
+import type { Users } from "../generated/prisma/client";
 
 @Injectable()
 export class UsersService {

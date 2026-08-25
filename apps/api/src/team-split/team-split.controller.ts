@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Param, Post, Req, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
-import type { AuthenticatedRequest } from 'src/auth/types/authenticated-request';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
+import type { AuthenticatedRequest } from '../auth/types/authenticated-request';
 import { TeamSplitService } from './team-split.service';
 import { CreateTeamSplitDto } from './dto/create-team-split.dto';
 import { TeamSplitGenerateGuard } from './guards/team-split-generate.guard';

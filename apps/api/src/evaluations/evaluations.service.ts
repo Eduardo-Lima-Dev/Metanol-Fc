@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PrismaService } from "src/prisma/prisma.service";
+import { PrismaService } from "../prisma/prisma.service";
 import type { CreateEvaluationInput } from "@metanol/shared";
 
 type CreateEvaluationBody = Omit<CreateEvaluationInput, "rachaId" | "evaluatorPlayerId">;

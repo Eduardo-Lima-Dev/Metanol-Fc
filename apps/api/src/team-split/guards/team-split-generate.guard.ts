@@ -8,8 +8,8 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import type { Request } from "express";
-import { PrismaService } from "src/prisma/prisma.service";
-import { resolveRachaId } from "src/racha/guards/racha-role.guard";
+import { PrismaService } from "../../prisma/prisma.service";
+import { resolveRachaId } from "../../racha/guards/racha-role.guard";
 
 /**
  * Autorização de `POST .../team-splits/generate` (RF05 extra): admin do

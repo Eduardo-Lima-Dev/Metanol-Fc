@@ -6,6 +6,7 @@ export const endpoints = {
   },
   users: {
     me: "/users/me",
+    findByEmail: (email: string) => `/users?email=${encodeURIComponent(email)}`,
   },
   rachas: {
     list: "/rachas",
@@ -15,7 +16,7 @@ export const endpoints = {
     setEvaluationsOpen: (rachaId: string) => `/rachas/${rachaId}/evaluations-open`,
     setTeamSplitOpenToMembers: (rachaId: string) =>
       `/rachas/${rachaId}/team-split-open-to-members`,
-    addMember: (rachaId: string) => `/rachas/${rachaId}/members`,
+    members: (rachaId: string) => `/rachas/${rachaId}/members`,
     removeMember: (rachaId: string, userId: string) => `/rachas/${rachaId}/members/${userId}`,
     setMemberRole: (rachaId: string, userId: string) =>
       `/rachas/${rachaId}/members/${userId}/role`,

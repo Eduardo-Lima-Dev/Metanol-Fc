@@ -24,6 +24,7 @@ model Users {
   rachaMemberships RachaMember[]
   createdRachas    Racha[]       @relation("RachaCreatedBy")
   players          Player[]
+  teamSplits       TeamSplit[]   @relation("TeamSplitCreatedBy")
 }
 
 enum RachaMemberRole {
@@ -43,6 +44,7 @@ model Racha {
   members     RachaMember[]
   players     Player[]
   evaluations Evaluation[]
+  teamSplits  TeamSplit[]
 }
 
 model RachaMember {
@@ -86,4 +88,17 @@ model Evaluation {
   createdAt         DateTime @default(now())
 
   @@unique([rachaId, evaluatedPlayerId, evaluatorPlayerId])
+}
+
+model TeamSplit {
+  id        String   @id @default(uuid())
+  rachaId   String
+  racha     Racha    @relation(fields: [rachaId], references: [id], onDelete: Cascade)
+  createdBy String
+  creator   Users    @relation("TeamSplitCreatedBy", fields: [createdBy], references: [id])
+  createdAt DateTime @default(now())
+  params    Json
+  teams     Json
+
+  @@index([rachaId, createdAt])
 }

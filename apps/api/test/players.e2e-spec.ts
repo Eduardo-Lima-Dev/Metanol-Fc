@@ -3,6 +3,7 @@ import request from 'supertest';
 import { PrismaService } from "src/prisma/prisma.service";
 import { createTestApp } from "./utils/create-test-app";
 import { registerAndLogin } from "./utils/register-and-login";
+import { cleanDatabase } from "./utils/clean-database";
 
 describe('(RF03): Jogadores e avaliações', () => {
     let app: INestApplication;
@@ -31,11 +32,7 @@ describe('(RF03): Jogadores e avaliações', () => {
 
     beforeAll(async () => {
         ({ app, prisma } = await createTestApp());
-        await prisma.evaluation.deleteMany();
-        await prisma.player.deleteMany();
-        await prisma.rachaMember.deleteMany();
-        await prisma.racha.deleteMany();
-        await prisma.users.deleteMany();
+        await cleanDatabase(prisma);
     })
 
     afterAll(async () => {

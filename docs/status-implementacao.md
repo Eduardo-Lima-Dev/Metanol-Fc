@@ -48,7 +48,9 @@ continuam sendo a fonte de verdade sobre *o que* deve ser construído.
 
 | Item | Status | Onde |
 |------|--------|------|
-| RF04.1–RF04.3 (persistência e consulta do histórico) | ❌ | Schema `teamSplitSchema` pronto; endpoint atual de divisão não grava nada (não há tabela) |
+| RF04.1 Persistir registro a cada divisão gerada | 🟡 | Tabela e `TeamSplitHistoryService.create` prontos ([`apps/api/src/team-split/history`](../apps/api/src/team-split/history)); falta ser acionado pelo fluxo de geração (RF05.7, Etapa 4) |
+| RF04.2 Consultar histórico de um racha, ordenado por data | ✅ | `GET /rachas/:rachaId/team-splits` (paginado) |
+| RF04.3 Visualizar parâmetros usados em cada divisão | ✅ | `GET /rachas/:rachaId/team-splits/:teamSplitId` |
 
 ## RF05 — Divisão de Times via Algoritmo Genético
 
@@ -92,15 +94,17 @@ Detalhamento do algoritmo em
 
 | Camada | Estado |
 |--------|--------|
-| `apps/api` | Módulos `auth`, `team-split`, `racha`, `players` e `evaluations` implementados; `prisma/schema.prisma` tem `Users`, `Racha`, `RachaMember`, `Player`, `Evaluation` |
+| `apps/api` | Módulos `auth`, `team-split` (+ histórico), `racha`, `players` e `evaluations` implementados; `prisma/schema.prisma` tem `Users`, `Racha`, `RachaMember`, `Player`, `Evaluation`, `TeamSplit` |
 | `apps/web` | Boilerplate padrão do Vite — nenhuma tela do produto construída |
 | `apps/app` | Boilerplate padrão do Expo — nenhuma tela do produto construída |
-| `packages/shared` | Contratos Zod cobrindo praticamente todo o domínio (RF01–RF06); `racha`/`racha-member`/`player`/`evaluation` já consumidos pela API |
+| `packages/shared` | Contratos Zod cobrindo praticamente todo o domínio (RF01–RF06); `racha`/`racha-member`/`player`/`evaluation`/`team-split` já consumidos pela API |
 
 ## Lacunas críticas (ordem sugerida de ataque)
 
-1. **Persistência do histórico de divisões (RF04)**, conectando o motor do AG já
-   pronto (RF05/RF06) a um racha e a uma tabela de histórico real.
+1. **Conectar a geração de divisão (RF05) ao histórico e a jogadores reais**,
+   removendo o endpoint isolado `POST /team-split/generate` e persistindo o
+   resultado via `TeamSplitHistoryService.create` já pronto (fecha RF04.1 e
+   RF05.1/RF05.7).
 2. **Telas de produto em `apps/web`/`apps/app`**, hoje inteiramente ausentes.
 3. **Observabilidade (Sentry) e infraestrutura de deploy**, antes de expor o sistema
    fora do ambiente local.

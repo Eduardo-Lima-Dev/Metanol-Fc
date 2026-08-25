@@ -39,10 +39,10 @@ continuam sendo a fonte de verdade sobre *o que* deve ser construído.
 
 | Item | Status | Onde |
 |------|--------|------|
-| RF03.1–RF03.2 (jogador por racha, média/gols/assistências) | ❌ | Schema `player.schema.ts` pronto; sem tabela/endpoint |
-| RF03.3 Atualização por admin | ❌ | — |
-| RF03.4.1 Upload `.txt` de médias | ❌ | Schema `importPlayerAveragesSchema` pronto; sem parser/endpoint |
-| RF03.4.2 Avaliação pública (mediana) | ❌ | Schema `evaluation.schema.ts` pronto; cálculo de mediana não existe no código |
+| RF03.1–RF03.2 (jogador por racha, média/gols/assistências) | ✅ | [`apps/api/src/players`](../apps/api/src/players) — `GET /rachas/:rachaId/players` |
+| RF03.3 Atualização por admin | ✅ | `PATCH /rachas/:rachaId/players/:playerId/stats` |
+| RF03.4.1 Upload `.txt` de médias | ✅ | `POST /rachas/:rachaId/players/import-averages`; parser em `player-averages-parser.ts` |
+| RF03.4.2 Avaliação pública (mediana) | ✅ | [`apps/api/src/evaluations`](../apps/api/src/evaluations); mediana em `players/median.ts`, aplicada em `PlayersService.computeEffectiveAverages` |
 
 ## RF04 — Histórico de Times
 
@@ -78,35 +78,31 @@ Detalhamento do algoritmo em
 | Área | Status | Observação |
 |------|--------|------------|
 | RNF01 Performance | 🟡 | AG roda rápido em memória, mas sem medição real registrada; loading states não se aplicam ainda (não há telas) |
-| RNF02 Segurança | 🟡 | Hash ✅, JWT via cookie httpOnly ✅, rate limit no login ✅ (`ThrottlerModule`, em memória — ver nota da RNF03.1), validação Zod no servidor ✅; refresh token ❌; autorização por papel de admin de racha ❌ (o conceito ainda não existe no código) |
+| RNF02 Segurança | 🟡 | Hash ✅, JWT via cookie httpOnly ✅ (payload inclui `sub`/id desde o RF02), rate limit no login ✅ (`ThrottlerModule`, em memória — ver nota da RNF03.1), validação Zod no servidor ✅, autorização por papel de admin de racha ✅ (`RachaRoleGuard`, RNF02.6); refresh token ❌ |
 | RNF03 Disponibilidade/Infra | ❌ | Sem deploy, sem adapter serverless, sem ADR de hospedagem |
 | RNF04 Escalabilidade | 🟡 | AG já roda isolado por requisição, sem estado compartilhado (RNF04.2) |
 | RNF05 Usabilidade/Acessibilidade | ❌ | Sem UI real (web/app ainda são o template padrão de scaffolding) |
 | RNF06 Compatibilidade | ➖ | Não avaliável sem UI |
 | RNF07 Manutenibilidade | 🟡 | Contratos centralizados em `packages/shared` ✅; testes automatizados existem só para o motor do AG (RF05/RF06) |
 | RNF08 Observabilidade | ❌ | Sentry não configurado em nenhuma app; sem logs estruturados |
-| RNF09 Privacidade | 🟡 | Minimização de dados ok (RF01.1); LGPD adiada por decisão própria; anonimato de avaliação não se aplica ainda (avaliação não existe) |
+| RNF09 Privacidade | 🟡 | Minimização de dados ok (RF01.1); LGPD adiada por decisão própria; avaliação pública identifica o avaliador no banco (sem anonimato) |
 | RNF10 Backup | ➖ | Adiado por decisão própria, depende do provedor de banco |
 
 ## Visão macro por camada
 
 | Camada | Estado |
 |--------|--------|
-| `apps/api` | Módulos `auth`, `team-split`, `racha` e `players` (esqueleto) implementados; `prisma/schema.prisma` tem `Users`, `Racha`, `RachaMember`, `Player` |
+| `apps/api` | Módulos `auth`, `team-split`, `racha`, `players` e `evaluations` implementados; `prisma/schema.prisma` tem `Users`, `Racha`, `RachaMember`, `Player`, `Evaluation` |
 | `apps/web` | Boilerplate padrão do Vite — nenhuma tela do produto construída |
 | `apps/app` | Boilerplate padrão do Expo — nenhuma tela do produto construída |
-| `packages/shared` | Contratos Zod cobrindo praticamente todo o domínio (RF01–RF06); `racha`/`racha-member` já consumidos pela API |
+| `packages/shared` | Contratos Zod cobrindo praticamente todo o domínio (RF01–RF06); `racha`/`racha-member`/`player`/`evaluation` já consumidos pela API |
 
 ## Lacunas críticas (ordem sugerida de ataque)
 
-1. **Model `Player` completo (goals/assists/average) + módulo (RF03).** O model já
-   existe no Prisma (criado junto do RF02) mas ainda só tem `createForMember`; falta
-   o CRUD completo e a lógica de mediana (RF03.4.2), hoje inexistente em qualquer
-   lugar do código.
-2. **Persistência do histórico de divisões (RF04)**, conectando o motor do AG já
+1. **Persistência do histórico de divisões (RF04)**, conectando o motor do AG já
    pronto (RF05/RF06) a um racha e a uma tabela de histórico real.
-3. **Telas de produto em `apps/web`/`apps/app`**, hoje inteiramente ausentes.
-4. **Observabilidade (Sentry) e infraestrutura de deploy**, antes de expor o sistema
+2. **Telas de produto em `apps/web`/`apps/app`**, hoje inteiramente ausentes.
+3. **Observabilidade (Sentry) e infraestrutura de deploy**, antes de expor o sistema
    fora do ambiente local.
 
 ## Como manter este documento atualizado

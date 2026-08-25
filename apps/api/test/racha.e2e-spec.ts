@@ -2,23 +2,14 @@ import { INestApplication } from "@nestjs/common"
 import request from 'supertest';
 import { PrismaService } from "src/prisma/prisma.service";
 import { createTestApp } from "./utils/create-test-app";
+import { registerAndLogin as registerAndLoginUtil } from "./utils/register-and-login";
 
 describe('(RF02): Gerenciamento de rachas', () => {
     let app: INestApplication;
     let prisma: PrismaService;
 
-    async function registerAndLogin(email: string, name = 'Usuário Teste') {
-        await request(app.getHttpServer())
-            .post('/api/auth/register')
-            .send({ name, email, password: 'SenhaForte123!' });
-
-        const response = await request(app.getHttpServer())
-            .post('/api/auth/login')
-            .send({ email, password: 'SenhaForte123!' });
-
-        const cookie = response.headers['set-cookie'][0];
-        const user = await prisma.users.findUniqueOrThrow({ where: { email } });
-        return { cookie, userId: user.id };
+    function registerAndLogin(email: string, name = 'Usuário Teste') {
+        return registerAndLoginUtil(app, prisma, email, name);
     }
 
     beforeAll(async () => {
@@ -36,7 +27,7 @@ describe('(RF02): Gerenciamento de rachas', () => {
     describe('Cenários de Sucesso (Caminho Feliz)', () => {
 
         it('Cenário 1: Criador do racha vira admin automaticamente (RF02.1/RF02.2)', async () => {
-            const { cookie, userId } = await registerAndLogin('admin1@metanolfc.com');
+            const { cookie, userId } = await registerAndLogin('rf02-admin1@metanolfc.com');
 
             const response = await request(app.getHttpServer())
                 .post('/api/rachas')
@@ -59,7 +50,7 @@ describe('(RF02): Gerenciamento de rachas', () => {
         });
 
         it('Cenário 2: Listagem de rachas do usuário com o papel exercido (RF02.5)', async () => {
-            const { cookie } = await registerAndLogin('admin2@metanolfc.com');
+            const { cookie } = await registerAndLogin('rf02-admin2@metanolfc.com');
 
             await request(app.getHttpServer())
                 .post('/api/rachas')
@@ -76,8 +67,8 @@ describe('(RF02): Gerenciamento de rachas', () => {
         });
 
         it('Cenário 3: Admin adiciona participante, que passa a integrar o racha (RF02.3)', async () => {
-            const { cookie: adminCookie } = await registerAndLogin('admin3@metanolfc.com');
-            const { userId: memberId } = await registerAndLogin('membro3@metanolfc.com');
+            const { cookie: adminCookie } = await registerAndLogin('rf02-admin3@metanolfc.com');
+            const { userId: memberId } = await registerAndLogin('rf02-membro3@metanolfc.com');
 
             const rachaResponse = await request(app.getHttpServer())
                 .post('/api/rachas')
@@ -99,8 +90,8 @@ describe('(RF02): Gerenciamento de rachas', () => {
         });
 
         it('Cenário 4: Admin promove outro membro a admin unilateralmente (RF02.4)', async () => {
-            const { cookie: adminCookie } = await registerAndLogin('admin4@metanolfc.com');
-            const { userId: memberId } = await registerAndLogin('membro4@metanolfc.com');
+            const { cookie: adminCookie } = await registerAndLogin('rf02-admin4@metanolfc.com');
+            const { userId: memberId } = await registerAndLogin('rf02-membro4@metanolfc.com');
 
             const rachaResponse = await request(app.getHttpServer())
                 .post('/api/rachas')
@@ -126,9 +117,9 @@ describe('(RF02): Gerenciamento de rachas', () => {
     describe('Cenários de Falha (Caminho de Exceção)', () => {
 
         it('Cenário 5: Membro comum não pode adicionar participantes', async () => {
-            const { cookie: adminCookie } = await registerAndLogin('admin5@metanolfc.com');
-            const { cookie: memberCookie, userId: memberId } = await registerAndLogin('membro5@metanolfc.com');
-            const { userId: outroId } = await registerAndLogin('outro5@metanolfc.com');
+            const { cookie: adminCookie } = await registerAndLogin('rf02-admin5@metanolfc.com');
+            const { cookie: memberCookie, userId: memberId } = await registerAndLogin('rf02-membro5@metanolfc.com');
+            const { userId: outroId } = await registerAndLogin('rf02-outro5@metanolfc.com');
 
             const rachaResponse = await request(app.getHttpServer())
                 .post('/api/rachas')
@@ -150,7 +141,7 @@ describe('(RF02): Gerenciamento de rachas', () => {
         });
 
         it('Cenário 6: Não é possível remover o último administrador do racha', async () => {
-            const { cookie: adminCookie, userId: adminId } = await registerAndLogin('admin6@metanolfc.com');
+            const { cookie: adminCookie, userId: adminId } = await registerAndLogin('rf02-admin6@metanolfc.com');
 
             const rachaResponse = await request(app.getHttpServer())
                 .post('/api/rachas')
@@ -171,8 +162,8 @@ describe('(RF02): Gerenciamento de rachas', () => {
         });
 
         it('Cenário 8: Adicionar o mesmo membro duas vezes é rejeitado (409)', async () => {
-            const { cookie: adminCookie } = await registerAndLogin('admin8@metanolfc.com');
-            const { userId: memberId } = await registerAndLogin('membro8@metanolfc.com');
+            const { cookie: adminCookie } = await registerAndLogin('rf02-admin8@metanolfc.com');
+            const { userId: memberId } = await registerAndLogin('rf02-membro8@metanolfc.com');
 
             const rachaResponse = await request(app.getHttpServer())
                 .post('/api/rachas')

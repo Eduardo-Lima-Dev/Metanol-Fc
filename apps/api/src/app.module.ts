@@ -9,6 +9,7 @@ import { HealthModule } from './health/health.module';
 import { TeamSplitModule } from './team-split/team-split.module';
 import { RachaModule } from './racha/racha.module';
 import { PlayersModule } from './players/players.module';
+import { EvaluationsModule } from './evaluations/evaluations.module';
 import { APP_GUARD } from '@nestjs/core';
 
 @Module({
@@ -32,6 +33,7 @@ import { APP_GUARD } from '@nestjs/core';
     TeamSplitModule,
     RachaModule,
     PlayersModule,
+    EvaluationsModule,
   ],
   controllers: [AppController],
   providers: [

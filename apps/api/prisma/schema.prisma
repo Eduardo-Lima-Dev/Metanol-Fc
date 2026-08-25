@@ -40,8 +40,9 @@ model Racha {
   creator         Users    @relation("RachaCreatedBy", fields: [createdBy], references: [id])
   createdAt       DateTime @default(now())
 
-  members RachaMember[]
-  players Player[]
+  members     RachaMember[]
+  players     Player[]
+  evaluations Evaluation[]
 }
 
 model RachaMember {
@@ -67,5 +68,22 @@ model Player {
   assists       Int     @default(0)
   manualAverage Float?
 
+  evaluationsReceived Evaluation[] @relation("EvaluatedPlayer")
+  evaluationsGiven    Evaluation[] @relation("EvaluatorPlayer")
+
   @@unique([rachaId, userId])
+}
+
+model Evaluation {
+  id                String   @id @default(uuid())
+  rachaId           String
+  racha             Racha    @relation(fields: [rachaId], references: [id], onDelete: Cascade)
+  evaluatedPlayerId String
+  evaluatedPlayer   Player   @relation("EvaluatedPlayer", fields: [evaluatedPlayerId], references: [id], onDelete: Cascade)
+  evaluatorPlayerId String
+  evaluatorPlayer   Player   @relation("EvaluatorPlayer", fields: [evaluatorPlayerId], references: [id], onDelete: Cascade)
+  score             Float
+  createdAt         DateTime @default(now())
+
+  @@unique([rachaId, evaluatedPlayerId, evaluatorPlayerId])
 }

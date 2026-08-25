@@ -2,6 +2,7 @@ import { INestApplication } from "@nestjs/common"
 import request from 'supertest';
 import { PrismaService } from "src/prisma/prisma.service";
 import { createTestApp } from "./utils/create-test-app";
+import { cleanDatabase } from "./utils/clean-database";
 
 describe('(RF01.5): Edição de perfil', () => {
     let app: INestApplication;
@@ -21,7 +22,7 @@ describe('(RF01.5): Edição de perfil', () => {
 
     beforeAll(async () => {
         ({ app, prisma } = await createTestApp());
-        await prisma.users.deleteMany();
+        await cleanDatabase(prisma);
     })
 
     afterAll(async () => {

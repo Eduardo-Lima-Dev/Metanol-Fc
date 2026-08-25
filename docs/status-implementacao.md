@@ -103,10 +103,11 @@ Detalhamento do algoritmo em
 
 ## Lacunas críticas (ordem sugerida de ataque)
 
-1. **Edição de perfil (RF01.5)** — schema `updateUserProfileSchema` já existe em
-   `packages/shared`, falta só o endpoint (`GET`/`PATCH /users/me`).
-2. **Telas de produto em `apps/web`/`apps/app`**, hoje inteiramente ausentes.
-3. **Observabilidade (Sentry) e infraestrutura de deploy**, antes de expor o sistema
+Todos os requisitos funcionais (RF01–RF06, incluindo as extensões de RF03/RF04/RF05)
+estão implementados no backend. O que falta:
+
+1. **Telas de produto em `apps/web`/`apps/app`**, hoje inteiramente ausentes.
+2. **Observabilidade (Sentry) e infraestrutura de deploy**, antes de expor o sistema
    fora do ambiente local.
 
 ## Como manter este documento atualizado

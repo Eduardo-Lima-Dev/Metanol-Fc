@@ -7,20 +7,25 @@
 ## Contexto
 
 O RF05/RF06 pedem um algoritmo genético para dividir os jogadores presentes de um racha em
-K times equilibrados, considerando média, gols e assistências. O módulo foi implementado de
-forma isolada — recebe os jogadores e os parâmetros diretamente no corpo da requisição, sem
-depender de `Racha`/`Player` persistidos no banco (RF02–RF04 ainda não existem no schema do
-Prisma). Isso permite testar e evoluir o algoritmo sem acoplar a outras partes do sistema
-ainda não construídas.
+K times equilibrados, considerando média, gols e assistências. O módulo foi implementado
+inicialmente de forma isolada — recebia os jogadores e os parâmetros diretamente no corpo da
+requisição, sem depender de `Racha`/`Player` persistidos no banco, já que RF02–RF04 ainda não
+existiam no schema do Prisma. Isso permitiu testar e evoluir o algoritmo sem acoplar a outras
+partes do sistema ainda não construídas. Com RF02–RF04 prontos, o módulo foi integrado a dados
+reais (ver "Escopo e limitações conhecidas" abaixo) — o motor do AG (`engine/`) em si não foi
+alterado nessa integração.
 
 ## Visão geral do módulo
 
 ```
 apps/api/src/team-split/
-  team-split.module.ts         // registra controller + service
-  team-split.controller.ts     // POST /team-split/generate
-  team-split.service.ts        // orquestra: monta o input, chama o motor, monta a resposta
-  dto/generate-team-split.dto.ts
+  team-split.module.ts             // registra controllers + services, importa PlayersModule
+  team-split.controller.ts         // POST /rachas/:rachaId/team-splits/generate
+  team-split.service.ts            // busca jogadores reais, chama o motor, persiste no histórico
+  dto/create-team-split.dto.ts
+  history/
+    team-split-history.controller.ts // GET /rachas/:rachaId/team-splits(/:teamSplitId)
+    team-split-history.service.ts    // RF04: cria e consulta o histórico persistido
   engine/
     team-sizes.ts    // RF06.3: tamanho-alvo de cada time
     chromosome.ts     // representação do cromossomo + população inicial
@@ -29,9 +34,11 @@ apps/api/src/team-split/
     run.ts        // loop principal do AG
 ```
 
-Os contratos de entrada/saída (`generateTeamSplitSchema`, `teamSplitParamsSchema`,
-`teamSplitResultSchema` etc.) vivem em `packages/shared/src/schemas/team-split.schema.ts`,
-compartilhados entre `api`/`web`/`app`.
+Os contratos de entrada/saída (`createTeamSplitSchema`, `teamSplitParamsSchema`,
+`teamSplitSchema` etc.) vivem em `packages/shared/src/schemas/team-split.schema.ts`,
+compartilhados entre `api`/`web`/`app`. O motor (`engine/`) continua tipado sobre
+`GenerateTeamSplitInput`/`TeamSplitPlayerInput` — o service é quem traduz jogadores reais do
+banco para esse formato antes de chamar `runGeneticAlgorithm`.
 
 ## Como o algoritmo funciona
 
@@ -76,18 +83,25 @@ o "chute" inicial nem resultados intermediários):
 
 ```mermaid
 sequenceDiagram
-    participant C as Cliente
+    participant C as Cliente (admin do racha)
     participant Ctrl as TeamSplitController
     participant Svc as TeamSplitService
+    participant DB as PrismaService
     participant Eng as engine/run.ts
+    participant Hist as TeamSplitHistoryService
 
-    C->>Ctrl: POST /team-split/generate
-    Ctrl->>Svc: generate(dto)
+    C->>Ctrl: POST /rachas/:rachaId/team-splits/generate
+    Note over Ctrl: JwtAuthGuard + RachaAdminGuard
+    Ctrl->>Svc: generate(rachaId, userId, dto)
+    Svc->>DB: busca Player[] presentes + médias efetivas (RF03.4)
     Svc->>Eng: runGeneticAlgorithm(input)
-    Note over Eng: roda as 200 gerações internamente,<br/>sem retornar nada parcial
+    Note over Eng: roda as N gerações internamente,<br/>sem retornar nada parcial
     Eng-->>Svc: melhor cromossomo + fitness
-    Svc-->>Ctrl: times montados (Team[])
-    Ctrl-->>C: 200 OK
+    Svc->>Hist: create(rachaId, userId, params, teams)
+    Note over Hist: persiste no histórico (RF04.1/RF05.7)
+    Hist-->>Svc: registro salvo (id, createdAt)
+    Svc-->>Ctrl: times + fitness + id do histórico
+    Ctrl-->>C: 201 Created
 ```
 
 ### Função de fitness
@@ -154,11 +168,16 @@ de um pool maior, cromossomo binário), não de partição, o que não correspon
 
 ## Escopo e limitações conhecidas
 
-- **Sem autenticação no endpoint.** RF05.1 diz que é o administrador do racha quem inicia a
-  divisão, mas como o módulo não está ligado a Racha/Player ainda, não há guard de auth aqui —
-  isso precisa ser adicionado quando o módulo for integrado ao restante do sistema.
-- **Sem persistência (RF04).** O resultado não é salvo em histórico; a resposta é o único
-  registro da divisão gerada.
+- ~~Sem autenticação no endpoint~~ **Resolvido.** `POST /rachas/:rachaId/team-splits/generate`
+  exige `JwtAuthGuard` + `RachaAdminGuard` — só o admin do racha inicia a divisão (RF05.1).
+- ~~Sem persistência (RF04)~~ **Resolvido.** Cada divisão gerada é persistida via
+  `TeamSplitHistoryService.create` e pode ser consultada depois em
+  `GET /rachas/:rachaId/team-splits` (RF04.1/RF05.7).
 - **Não determinístico.** Por padrão usa `Math.random()`; a mesma lista de jogadores gera
   times diferentes a cada execução, ainda que com nível de equilíbrio (fitness) semelhante,
-  já que múltiplas divisões diferentes costumam atingir o mesmo patamar de equilíbrio.
+  já que múltiplas divisões diferentes costumam atingir o mesmo patamar de equilíbrio. Esse
+  comportamento é aceito, não é um bug.
+- **Jogador sem média manual nem avaliação pública** entra na fitness com `average = 0`
+  (fallback conservador em `TeamSplitService.generate`) — a decidir se um valor diferente
+  (ex.: média dos demais jogadores presentes) seria mais justo, se isso se mostrar um problema
+  na prática.

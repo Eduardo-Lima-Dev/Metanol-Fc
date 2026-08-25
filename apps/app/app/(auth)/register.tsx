@@ -3,13 +3,26 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useRouter } from "expo-router";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from "react-native";
-import { registerUserSchema, type RegisterUserInput } from "@metanol/shared";
+import { z } from "zod";
+import { type RegisterUserInput } from "@metanol/shared";
 import { ScreenContainer } from "../../src/components/ScreenContainer";
 import { TextField } from "../../src/components/TextField";
 import { Button } from "../../src/components/Button";
 import { ErrorView } from "../../src/components/ErrorView";
 import { Logo } from "../../src/components/Logo";
 import { useAuth } from "../../src/core/auth/AuthProvider";
+
+// Schema só do formulário: "nickname" precisa aceitar string vazia aqui
+// (é isso que o campo tem enquanto o usuário não digita nada), diferente do
+// registerUserSchema da API, que exige undefined nesse caso (min(1)
+// rejeitaria ""). A conversão pra undefined acontece em onSubmit.
+const registerFormSchema = z.object({
+  name: z.string().min(1, "Informe seu nome"),
+  nickname: z.string().optional(),
+  email: z.string().email("E-mail inválido"),
+  password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres"),
+});
+type RegisterFormValues = z.infer<typeof registerFormSchema>;
 
 export default function Register() {
   const { register: registerUser } = useAuth();
@@ -20,15 +33,21 @@ export default function Register() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<RegisterUserInput>({
-    resolver: zodResolver(registerUserSchema),
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerFormSchema),
     defaultValues: { name: "", nickname: "", email: "", password: "" },
   });
 
-  const onSubmit = async (data: RegisterUserInput) => {
+  const onSubmit = async (data: RegisterFormValues) => {
     setSubmitError(null);
     try {
-      await registerUser({ ...data, nickname: data.nickname || undefined });
+      const input: RegisterUserInput = {
+        name: data.name,
+        nickname: data.nickname?.trim() || undefined,
+        email: data.email,
+        password: data.password,
+      };
+      await registerUser(input);
       router.replace({ pathname: "/(auth)/login", params: { registered: "1" } });
     } catch (error) {
       setSubmitError(error);

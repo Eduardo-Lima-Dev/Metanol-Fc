@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import type { Prisma } from "src/generated/prisma/client";
-import type { Player, UpdatePlayerStatsInput } from "@metanol/shared";
+import type { AddGuestPlayerInput, Player, UpdatePlayerStatsInput } from "@metanol/shared";
 import { median } from "./median";
 import { parsePlayerAveragesFile } from "./player-averages-parser";
 
@@ -42,14 +42,20 @@ export class PlayersService {
     });
 
     const evaluations = await this.prisma.evaluation.findMany({
-      where: { rachaId, evaluatedPlayerId: { in: players.map((player) => player.id) } },
+      where: {
+        rachaId,
+        evaluatedPlayerId: { in: players.map((player) => player.id) },
+        score: { not: null },
+      },
       select: { evaluatedPlayerId: true, score: true },
     });
 
     const scoresByPlayer = new Map<string, number[]>();
     for (const evaluation of evaluations) {
+      // `score` não é nulo aqui — filtrado na query (abstenções não contam
+      // para a mediana).
       const scores = scoresByPlayer.get(evaluation.evaluatedPlayerId) ?? [];
-      scores.push(evaluation.score);
+      scores.push(evaluation.score as number);
       scoresByPlayer.set(evaluation.evaluatedPlayerId, scores);
     }
 
@@ -62,13 +68,32 @@ export class PlayersService {
   }
 
   async listPlayers(rachaId: string): Promise<Player[]> {
-    const players = await this.prisma.player.findMany({ where: { rachaId } });
+    const players = await this.prisma.player.findMany({
+      where: { rachaId },
+      include: { user: { select: { name: true } } },
+    });
     const averages = await this.computeEffectiveAverages(rachaId);
 
-    return players.map((player) => ({
+    return players.map(({ user, ...player }) => ({
       ...player,
+      name: user?.name ?? player.guestName ?? "Jogador",
       average: averages.get(player.id) ?? null,
     }));
+  }
+
+  /**
+   * Jogador avulso (RF03 extra): participa deste racha só nesta ocasião, sem
+   * conta no sistema. O admin informa o overall diretamente (`manualAverage`)
+   * já que não há avaliação pública nem histórico anteriores para ele.
+   */
+  async addGuestPlayer(rachaId: string, input: Omit<AddGuestPlayerInput, "rachaId">) {
+    return this.prisma.player.create({
+      data: {
+        rachaId,
+        guestName: input.name,
+        manualAverage: input.manualAverage,
+      },
+    });
   }
 
   async updateStats(rachaId: string, playerId: string, input: UpdatePlayerStatsInput) {

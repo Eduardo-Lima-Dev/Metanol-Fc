@@ -123,9 +123,100 @@ describe('(RF03): Jogadores e avaliações', () => {
             const targetPlayer = listResponse.body.find((p: { id: string }) => p.id === targetPlayerId);
             expect(targetPlayer.average).toBe(4.5);
         });
+
+        it('Cenário 9: Admin adiciona jogador avulso com overall definido na hora', async () => {
+            const { rachaId, adminCookie } = await createRachaWithAdmin('Racha Avulso', 'rf03-admin9@metanolfc.com');
+
+            const response = await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/players/guests`)
+                .set('Cookie', adminCookie)
+                .send({ name: 'Convidado do Fulano', manualAverage: 3.5 });
+
+            expect(response.status).toBe(201);
+            expect(response.body.userId).toBeNull();
+            expect(response.body.guestName).toBe('Convidado do Fulano');
+
+            const listResponse = await request(app.getHttpServer())
+                .get(`/api/rachas/${rachaId}/players`)
+                .set('Cookie', adminCookie);
+            const guestPlayer = listResponse.body.find((p: { id: string }) => p.id === response.body.id);
+            expect(guestPlayer.name).toBe('Convidado do Fulano');
+            expect(guestPlayer.average).toBe(3.5);
+        });
+
+        it('Cenário 10: Jogador avulso pode ser avaliado como qualquer outro', async () => {
+            const { rachaId, adminCookie } = await createRachaWithAdmin('Racha Avulso Avaliado', 'rf03-admin10@metanolfc.com');
+            const { memberCookie: evaluatorCookie } = await addMember(rachaId, adminCookie, 'rf03-avaliador10@metanolfc.com');
+
+            const guestResponse = await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/players/guests`)
+                .set('Cookie', adminCookie)
+                .send({ name: 'Convidado Avaliado', manualAverage: 1 });
+            const guestPlayerId = guestResponse.body.id as string;
+
+            await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/evaluations-open`)
+                .set('Cookie', adminCookie)
+                .send({ open: true });
+
+            const evalResponse = await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/evaluations`)
+                .set('Cookie', evaluatorCookie)
+                .send({ evaluatedPlayerId: guestPlayerId, score: 4 });
+            expect(evalResponse.status).toBe(201);
+
+            const listResponse = await request(app.getHttpServer())
+                .get(`/api/rachas/${rachaId}/players`)
+                .set('Cookie', adminCookie);
+            const guestPlayer = listResponse.body.find((p: { id: string }) => p.id === guestPlayerId);
+            expect(guestPlayer.average).toBe(4);
+        });
+
+        it('Cenário 11: Abstenção ("não sei") fica registrada e não entra na mediana', async () => {
+            const { rachaId, adminCookie } = await createRachaWithAdmin('Racha Abstenção', 'rf03-admin11@metanolfc.com');
+            const { playerId: targetPlayerId } = await addMember(rachaId, adminCookie, 'rf03-alvo11@metanolfc.com');
+            const { memberCookie: evaluator1Cookie } = await addMember(rachaId, adminCookie, 'rf03-avaliador11a@metanolfc.com');
+            const { memberCookie: evaluator2Cookie } = await addMember(rachaId, adminCookie, 'rf03-avaliador11b@metanolfc.com');
+
+            await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/evaluations-open`)
+                .set('Cookie', adminCookie)
+                .send({ open: true });
+
+            const abstainResponse = await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/evaluations`)
+                .set('Cookie', evaluator1Cookie)
+                .send({ evaluatedPlayerId: targetPlayerId, score: null });
+            expect(abstainResponse.status).toBe(201);
+            expect(abstainResponse.body.score).toBeNull();
+
+            await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/evaluations`)
+                .set('Cookie', evaluator2Cookie)
+                .send({ evaluatedPlayerId: targetPlayerId, score: 5 });
+
+            const listResponse = await request(app.getHttpServer())
+                .get(`/api/rachas/${rachaId}/players`)
+                .set('Cookie', adminCookie);
+            const targetPlayer = listResponse.body.find((p: { id: string }) => p.id === targetPlayerId);
+            // Só a nota 5 conta — a abstenção é ignorada na mediana.
+            expect(targetPlayer.average).toBe(5);
+        });
     });
 
     describe('Cenários de Falha (Caminho de Exceção)', () => {
+
+        it('Cenário 12: Membro comum não pode adicionar jogador avulso', async () => {
+            const { rachaId, adminCookie } = await createRachaWithAdmin('Racha Avulso Restrito', 'rf03-admin12@metanolfc.com');
+            const { memberCookie } = await addMember(rachaId, adminCookie, 'rf03-membro12@metanolfc.com');
+
+            const response = await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/players/guests`)
+                .set('Cookie', memberCookie)
+                .send({ name: 'Convidado Não Autorizado' });
+
+            expect(response.status).toBe(403);
+        });
 
         it('Cenário 5: Membro comum não pode atualizar estatísticas de outro jogador', async () => {
             const { rachaId, adminCookie } = await createRachaWithAdmin('Racha Restrito Stats', 'rf03-admin5@metanolfc.com');

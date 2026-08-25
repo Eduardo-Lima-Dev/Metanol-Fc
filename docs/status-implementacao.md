@@ -42,7 +42,8 @@ continuam sendo a fonte de verdade sobre *o que* deve ser construído.
 | RF03.1–RF03.2 (jogador por racha, média/gols/assistências) | ✅ | [`apps/api/src/players`](../apps/api/src/players) — `GET /rachas/:rachaId/players` |
 | RF03.3 Atualização por admin | ✅ | `PATCH /rachas/:rachaId/players/:playerId/stats` |
 | RF03.4.1 Upload `.txt` de médias | ✅ | `POST /rachas/:rachaId/players/import-averages`; parser em `player-averages-parser.ts` |
-| RF03.4.2 Avaliação pública (mediana) | ✅ | [`apps/api/src/evaluations`](../apps/api/src/evaluations); mediana em `players/median.ts`, aplicada em `PlayersService.computeEffectiveAverages` |
+| RF03.4.2 Avaliação pública (mediana + abstenção) | ✅ | [`apps/api/src/evaluations`](../apps/api/src/evaluations); `score: null` registra abstenção, ignorada em `PlayersService.computeEffectiveAverages` |
+| RF03.5 Jogador avulso *(extensão)* | ✅ | `POST /rachas/:rachaId/players/guests`; `Player.userId` opcional + `guestName` |
 
 ## RF04 — Histórico de Times
 

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { rachaMemberRoleSchema } from "./racha-member.schema";
 
 export const rachaSchema = z.object({
   id: z.string().uuid(),
@@ -29,3 +30,9 @@ export const setEvaluationsOpenSchema = z.object({
   open: z.boolean(),
 });
 export type SetEvaluationsOpenInput = z.infer<typeof setEvaluationsOpenSchema>;
+
+// Racha listado para um usuário (RF02.5), com o papel que ele exerce nele.
+export const rachaWithRoleSchema = rachaSchema.extend({
+  role: rachaMemberRoleSchema,
+});
+export type RachaWithRole = z.infer<typeof rachaWithRoleSchema>;

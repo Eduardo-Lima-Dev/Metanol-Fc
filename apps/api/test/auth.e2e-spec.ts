@@ -1,30 +1,15 @@
 import { INestApplication } from "@nestjs/common"
-import { Test, TestingModule } from "@nestjs/testing";
-import { ZodValidationPipe } from "nestjs-zod";
-import cookieParser from "cookie-parser";
 import request from 'supertest';
-import { AppModule } from "src/app.module";
 import { PrismaService } from "src/prisma/prisma.service";
+import { createTestApp } from "./utils/create-test-app";
 
 describe('(RF01): Cadastro de novos usuários', () => {
     let app: INestApplication;
     let prisma: PrismaService;
 
     beforeAll(async () => {
-        
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile();
-
-        app = moduleFixture.createNestApplication();
-        app.use(cookieParser());
-        app.useGlobalPipes(new ZodValidationPipe());
-        app.setGlobalPrefix('api'); 
-        await app.init();
-
-        prisma = app.get(PrismaService);
+        ({ app, prisma } = await createTestApp());
         await prisma.users.deleteMany();
-
     })
 
     afterAll(async () => {
@@ -70,7 +55,6 @@ describe('(RF01): Cadastro de novos usuários', () => {
                 .post('/api/auth/register')
                 .send({
                     name: 'Eduardo Lima',
-                    nickname: 'Dudu',
                     email: 'kaua.lima@metanolfc.com',
                     password: 'SenhaForte987!',
             });

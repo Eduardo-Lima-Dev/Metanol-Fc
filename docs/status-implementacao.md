@@ -1,7 +1,7 @@
 # Status de Implementação — Metanol FC
 
 - Status: em andamento (atualizar a cada entrega)
-- Data: 2026-08-03
+- Data: 2026-08-24
 
 Acompanhamento do que já foi implementado no código em relação aos requisitos
 funcionais ([`requisitos/requisitos-funcionais.md`](./requisitos/requisitos-funcionais.md))
@@ -29,7 +29,11 @@ continuam sendo a fonte de verdade sobre *o que* deve ser construído.
 
 | Item | Status | Onde |
 |------|--------|------|
-| RF02.1–RF02.5 (criar racha, admin, participantes, múltiplos rachas, listagem) | ❌ | Schemas prontos em `packages/shared` (`racha.schema.ts`, `racha-member.schema.ts`); sem model no Prisma e sem módulo na API |
+| RF02.1 Criar racha (nome, dia/horário opcional) | ✅ | [`apps/api/src/racha`](../apps/api/src/racha) |
+| RF02.2 Criador vira admin automaticamente | ✅ | `RachaService.create` (transação: `Racha` + `RachaMember(admin)` + `Player`) |
+| RF02.3 Admin adiciona/remove participantes | ✅ | `RachaController` (`POST`/`DELETE /rachas/:rachaId/members`) |
+| RF02.4 Múltiplos rachas por usuário, múltiplos admins (promoção unilateral) | ✅ | `PATCH /rachas/:rachaId/members/:userId/role`; bloqueia remover/rebaixar o último admin |
+| RF02.5 Listar rachas do usuário com o papel exercido | ✅ | `GET /rachas` (`RachaWithRole` em `packages/shared`) |
 
 ## RF03 — Jogadores
 
@@ -88,22 +92,21 @@ Detalhamento do algoritmo em
 
 | Camada | Estado |
 |--------|--------|
-| `apps/api` | Módulos `auth` e `team-split` implementados e testados; `prisma/schema.prisma` só tem o model `Users` |
+| `apps/api` | Módulos `auth`, `team-split`, `racha` e `players` (esqueleto) implementados; `prisma/schema.prisma` tem `Users`, `Racha`, `RachaMember`, `Player` |
 | `apps/web` | Boilerplate padrão do Vite — nenhuma tela do produto construída |
 | `apps/app` | Boilerplate padrão do Expo — nenhuma tela do produto construída |
-| `packages/shared` | Contratos Zod cobrindo praticamente todo o domínio (RF01–RF06); maior parte ainda sem consumidor real na API |
+| `packages/shared` | Contratos Zod cobrindo praticamente todo o domínio (RF01–RF06); `racha`/`racha-member` já consumidos pela API |
 
 ## Lacunas críticas (ordem sugerida de ataque)
 
-1. **Model `Racha` e `RachaMember` no Prisma + módulo na API (RF02).** Sem isso, não
-   existe "admin de racha" nem participantes reais — pré-requisito para RF03, RF04 e
-   para o RF05 deixar de receber jogadores soltos no body.
-2. **Model `Player` + módulo (RF03).** Inclui a lógica de mediana (RF03.4.2), hoje
-   inexistente em qualquer lugar do código.
-3. **Persistência do histórico de divisões (RF04)**, conectando o motor do AG já
+1. **Model `Player` completo (goals/assists/average) + módulo (RF03).** O model já
+   existe no Prisma (criado junto do RF02) mas ainda só tem `createForMember`; falta
+   o CRUD completo e a lógica de mediana (RF03.4.2), hoje inexistente em qualquer
+   lugar do código.
+2. **Persistência do histórico de divisões (RF04)**, conectando o motor do AG já
    pronto (RF05/RF06) a um racha e a uma tabela de histórico real.
-4. **Telas de produto em `apps/web`/`apps/app`**, hoje inteiramente ausentes.
-5. **Observabilidade (Sentry) e infraestrutura de deploy**, antes de expor o sistema
+3. **Telas de produto em `apps/web`/`apps/app`**, hoje inteiramente ausentes.
+4. **Observabilidade (Sentry) e infraestrutura de deploy**, antes de expor o sistema
    fora do ambiente local.
 
 ## Como manter este documento atualizado

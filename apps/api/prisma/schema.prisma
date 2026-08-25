@@ -20,4 +20,52 @@ model Users {
   email         String   @unique
   password_hash String
   createdAt     DateTime @default(now())
+
+  rachaMemberships RachaMember[]
+  createdRachas    Racha[]       @relation("RachaCreatedBy")
+  players          Player[]
+}
+
+enum RachaMemberRole {
+  admin
+  member
+}
+
+model Racha {
+  id              String   @id @default(uuid())
+  name            String
+  schedule        String?
+  evaluationsOpen Boolean  @default(false)
+  createdBy       String
+  creator         Users    @relation("RachaCreatedBy", fields: [createdBy], references: [id])
+  createdAt       DateTime @default(now())
+
+  members RachaMember[]
+  players Player[]
+}
+
+model RachaMember {
+  id       String          @id @default(uuid())
+  rachaId  String
+  racha    Racha           @relation(fields: [rachaId], references: [id], onDelete: Cascade)
+  userId   String
+  user     Users           @relation(fields: [userId], references: [id])
+  role     RachaMemberRole
+  joinedAt DateTime        @default(now())
+
+  @@unique([rachaId, userId])
+  @@index([userId])
+}
+
+model Player {
+  id            String  @id @default(uuid())
+  rachaId       String
+  racha         Racha   @relation(fields: [rachaId], references: [id], onDelete: Cascade)
+  userId        String
+  user          Users   @relation(fields: [userId], references: [id])
+  goals         Int     @default(0)
+  assists       Int     @default(0)
+  manualAverage Float?
+
+  @@unique([rachaId, userId])
 }

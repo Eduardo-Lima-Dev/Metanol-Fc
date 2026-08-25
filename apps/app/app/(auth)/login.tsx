@@ -10,11 +10,16 @@ import { Button } from "../../src/components/Button";
 import { ErrorView } from "../../src/components/ErrorView";
 import { Logo } from "../../src/components/Logo";
 import { useAuth } from "../../src/core/auth/AuthProvider";
+import { useJoinRachaByInvite } from "../../src/features/rachas/hooks";
 
 export default function Login() {
   const { login } = useAuth();
   const router = useRouter();
-  const { registered } = useLocalSearchParams<{ registered?: string }>();
+  const joinRacha = useJoinRachaByInvite();
+  const { registered, inviteCode } = useLocalSearchParams<{
+    registered?: string;
+    inviteCode?: string;
+  }>();
   const [submitError, setSubmitError] = useState<unknown>(null);
 
   const {
@@ -30,6 +35,11 @@ export default function Login() {
     setSubmitError(null);
     try {
       await login(data);
+      if (inviteCode) {
+        const racha = await joinRacha.mutateAsync(inviteCode);
+        router.replace(`/(tabs)/rachas/${racha.id}`);
+        return;
+      }
       router.replace("/(tabs)/rachas");
     } catch (error) {
       setSubmitError(error);
@@ -101,7 +111,10 @@ export default function Login() {
             />
           </View>
 
-          <Link href="/(auth)/register" asChild>
+          <Link
+            href={{ pathname: "/(auth)/register", params: inviteCode ? { inviteCode } : {} }}
+            asChild
+          >
             <Pressable className="mt-6">
               <Text className="text-center text-gold">
                 Não tem conta? <Text className="font-semibold">Criar conta</Text>

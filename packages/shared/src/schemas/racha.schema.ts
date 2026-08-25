@@ -13,6 +13,9 @@ export const rachaSchema = z.object({
   teamSplitOpenToMembers: z.boolean(),
   createdBy: z.string().uuid(),
   createdAt: z.coerce.date(),
+  // Código do link de convite (RF02 extra) — quem tiver esse código entra
+  // como membro automaticamente ao se cadastrar/logar pelo link.
+  inviteCode: z.string().uuid(),
 });
 export type Racha = z.infer<typeof rachaSchema>;
 

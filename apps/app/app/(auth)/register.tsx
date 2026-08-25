@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useRouter } from "expo-router";
+import { Link, useLocalSearchParams, useRouter } from "expo-router";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { z } from "zod";
 import { type RegisterUserInput } from "@metanol/shared";
@@ -27,6 +27,7 @@ type RegisterFormValues = z.infer<typeof registerFormSchema>;
 export default function Register() {
   const { register: registerUser } = useAuth();
   const router = useRouter();
+  const { inviteCode } = useLocalSearchParams<{ inviteCode?: string }>();
   const [submitError, setSubmitError] = useState<unknown>(null);
 
   const {
@@ -48,7 +49,10 @@ export default function Register() {
         password: data.password,
       };
       await registerUser(input);
-      router.replace({ pathname: "/(auth)/login", params: { registered: "1" } });
+      router.replace({
+        pathname: "/(auth)/login",
+        params: { registered: "1", ...(inviteCode ? { inviteCode } : {}) },
+      });
     } catch (error) {
       setSubmitError(error);
     }

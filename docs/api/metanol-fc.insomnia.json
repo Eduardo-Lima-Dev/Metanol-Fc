@@ -1,15 +1,15 @@
 {
   "_type": "export",
   "__export_format": 4,
-  "__export_date": "2026-08-25T01:15:14.828Z",
+  "__export_date": "2026-08-25T01:30:12.587Z",
   "__export_source": "insomnia.desktop.app:v8.6.1",
   "resources": [
     {
       "_id": "wrk_metanol_fc",
       "_type": "workspace",
       "parentId": null,
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "name": "Metanol FC — API (E2E)",
       "description": "Fluxo de ponta a ponta da API do Metanol FC: cadastro/login, perfil, rachas, jogadores, avaliações e divisão de times. Rode as pastas em ordem (01 → 07). A autenticação é via cookie httpOnly — o Insomnia gerencia isso sozinho pelo cookie jar do workspace, então cada 'Login' abaixo troca qual usuário fica autenticado nas requisições seguintes, até o próximo login/logout.",
       "scope": "collection"
@@ -18,8 +18,8 @@
       "_id": "env_metanol_fc_base",
       "_type": "environment",
       "parentId": "wrk_metanol_fc",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "name": "Base Environment",
       "data": {
         "base_url": "http://localhost:3338/api",
@@ -65,8 +65,8 @@
       "_id": "fld_01_auth",
       "_type": "request_group",
       "parentId": "wrk_metanol_fc",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "name": "01 - Autenticação",
       "description": "Cadastra os 3 usuários usados no resto do fluxo (admin + 2 membros) e mostra como logar como cada um. Como a sessão é um cookie httpOnly, o **Insomnia troca de usuário autenticado a cada Login** — rode o Login correspondente sempre que a próxima pasta precisar agir como outro usuário (as pastas seguintes indicam isso).",
       "environment": {},
@@ -77,8 +77,8 @@
       "_id": "req_register_admin",
       "_type": "request",
       "parentId": "fld_01_auth",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/auth/register",
       "name": "Registrar Admin",
       "description": "RF01.1. Esse usuário vai criar o racha e virar admin automaticamente (RF02.2).",
@@ -88,7 +88,12 @@
         "text": "{\n  \"name\": \"Admin Racha\",\n  \"nickname\": \"admin-racha\",\n  \"email\": \"{{ _.admin_email }}\",\n  \"password\": \"{{ _.admin_password }}\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 2000,
       "isPrivate": false,
@@ -103,8 +108,8 @@
       "_id": "req_register_member1",
       "_type": "request",
       "parentId": "fld_01_auth",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/auth/register",
       "name": "Registrar Membro 1",
       "description": "",
@@ -114,7 +119,12 @@
         "text": "{\n  \"name\": \"Membro Um\",\n  \"email\": \"{{ _.member1_email }}\",\n  \"password\": \"{{ _.member1_password }}\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 3000,
       "isPrivate": false,
@@ -129,8 +139,8 @@
       "_id": "req_register_member2",
       "_type": "request",
       "parentId": "fld_01_auth",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/auth/register",
       "name": "Registrar Membro 2",
       "description": "",
@@ -140,7 +150,12 @@
         "text": "{\n  \"name\": \"Membro Dois\",\n  \"email\": \"{{ _.member2_email }}\",\n  \"password\": \"{{ _.member2_password }}\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 4000,
       "isPrivate": false,
@@ -155,8 +170,8 @@
       "_id": "req_login_admin",
       "_type": "request",
       "parentId": "fld_01_auth",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/auth/login",
       "name": "Login como Admin",
       "description": "A partir daqui, as próximas requisições rodam como Admin (cookie jar do workspace), até o próximo Login/Logout.",
@@ -166,7 +181,12 @@
         "text": "{\n  \"email\": \"{{ _.admin_email }}\",\n  \"password\": \"{{ _.admin_password }}\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 5000,
       "isPrivate": false,
@@ -181,8 +201,8 @@
       "_id": "req_login_member1",
       "_type": "request",
       "parentId": "fld_01_auth",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/auth/login",
       "name": "Login como Membro 1",
       "description": "",
@@ -192,7 +212,12 @@
         "text": "{\n  \"email\": \"{{ _.member1_email }}\",\n  \"password\": \"{{ _.member1_password }}\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 6000,
       "isPrivate": false,
@@ -207,8 +232,8 @@
       "_id": "req_login_member2",
       "_type": "request",
       "parentId": "fld_01_auth",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/auth/login",
       "name": "Login como Membro 2",
       "description": "",
@@ -218,7 +243,12 @@
         "text": "{\n  \"email\": \"{{ _.member2_email }}\",\n  \"password\": \"{{ _.member2_password }}\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 7000,
       "isPrivate": false,
@@ -233,8 +263,8 @@
       "_id": "req_logout",
       "_type": "request",
       "parentId": "fld_01_auth",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/auth/logout",
       "name": "Logout",
       "description": "Usado no cenário de erro 401 (fim do arquivo).",
@@ -256,8 +286,8 @@
       "_id": "fld_02_profile",
       "_type": "request_group",
       "parentId": "wrk_metanol_fc",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "name": "02 - Perfil (RF01.5)",
       "description": "⚠️ Está na branch feat/RF01.5-edicao-perfil, separada das demais (não depende de racha/jogador, então foi feita à parte). Para rodar esta pasta você precisa estar com essa branch mesclada/checada localmente. É por aqui que você pega o **id de cada usuário** (o registro não devolve o id) — precisa disso pra adicionar Membro 1 e Membro 2 no racha na pasta 03.",
       "environment": {},
@@ -268,8 +298,8 @@
       "_id": "req_me_admin",
       "_type": "request",
       "parentId": "fld_02_profile",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/users/me",
       "name": "Meu perfil — como Admin",
       "description": "Rode logado como Admin (após 'Login como Admin').",
@@ -291,8 +321,8 @@
       "_id": "req_update_me_admin",
       "_type": "request",
       "parentId": "fld_02_profile",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/users/me",
       "name": "Editar meu perfil — como Admin",
       "description": "",
@@ -302,7 +332,12 @@
         "text": "{\n  \"name\": \"Admin Racha (editado)\",\n  \"nickname\": \"admin-editado\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 11000,
       "isPrivate": false,
@@ -317,8 +352,8 @@
       "_id": "req_me_member1",
       "_type": "request",
       "parentId": "fld_02_profile",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/users/me",
       "name": "Meu perfil — como Membro 1",
       "description": "Rode logado como Membro 1 (após 'Login como Membro 1'). Copie o `id` da resposta para a variável de ambiente `member1_user_id`.",
@@ -340,8 +375,8 @@
       "_id": "req_me_member2",
       "_type": "request",
       "parentId": "fld_02_profile",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/users/me",
       "name": "Meu perfil — como Membro 2",
       "description": "Rode logado como Membro 2 (após 'Login como Membro 2'). Copie o `id` da resposta para a variável de ambiente `member2_user_id`.",
@@ -363,8 +398,8 @@
       "_id": "fld_03_racha",
       "_type": "request_group",
       "parentId": "wrk_metanol_fc",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "name": "03 - Rachas",
       "description": "Faça 'Login como Admin' antes desta pasta. Depois de 'Criar Racha', copie o `id` da resposta para a variável `racha_id` — todo o resto do fluxo depende dela.",
       "environment": {},
@@ -375,8 +410,8 @@
       "_id": "req_racha_create",
       "_type": "request",
       "parentId": "fld_03_racha",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas",
       "name": "Criar Racha",
       "description": "RF02.1/RF02.2 — o criador (Admin) vira administrador automaticamente. Copie `id` → `racha_id`.",
@@ -386,7 +421,12 @@
         "text": "{\n  \"name\": \"Pelada de Sábado\",\n  \"schedule\": \"Sábados, 10h\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 15000,
       "isPrivate": false,
@@ -401,8 +441,8 @@
       "_id": "req_racha_list",
       "_type": "request",
       "parentId": "fld_03_racha",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas",
       "name": "Listar meus rachas",
       "description": "RF02.5 — traz o papel (`role`) do usuário logado em cada racha.",
@@ -424,8 +464,8 @@
       "_id": "req_racha_detail",
       "_type": "request",
       "parentId": "fld_03_racha",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}",
       "name": "Detalhe do racha",
       "description": "",
@@ -447,8 +487,8 @@
       "_id": "req_racha_update",
       "_type": "request",
       "parentId": "fld_03_racha",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}",
       "name": "Atualizar racha",
       "description": "",
@@ -458,7 +498,12 @@
         "text": "{\n  \"schedule\": \"Sábados, 16h\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 18000,
       "isPrivate": false,
@@ -473,8 +518,8 @@
       "_id": "req_racha_add_member1",
       "_type": "request",
       "parentId": "fld_03_racha",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/members",
       "name": "Adicionar Membro 1 ao racha",
       "description": "RF02.3 — precisa de `member1_user_id` preenchido (pasta 02).",
@@ -484,7 +529,12 @@
         "text": "{\n  \"userId\": \"{{ _.member1_user_id }}\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 19000,
       "isPrivate": false,
@@ -499,8 +549,8 @@
       "_id": "req_racha_add_member2",
       "_type": "request",
       "parentId": "fld_03_racha",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/members",
       "name": "Adicionar Membro 2 ao racha",
       "description": "",
@@ -510,7 +560,12 @@
         "text": "{\n  \"userId\": \"{{ _.member2_user_id }}\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 20000,
       "isPrivate": false,
@@ -525,8 +580,8 @@
       "_id": "req_racha_set_member_role",
       "_type": "request",
       "parentId": "fld_03_racha",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/members/{{ _.member1_user_id }}/role",
       "name": "Promover Membro 1 a admin",
       "description": "RF02.4 — promoção unilateral, sem aceite do promovido.",
@@ -536,7 +591,12 @@
         "text": "{\n  \"role\": \"admin\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 21000,
       "isPrivate": false,
@@ -551,8 +611,8 @@
       "_id": "req_racha_remove_member",
       "_type": "request",
       "parentId": "fld_03_racha",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/members/{{ _.member2_user_id }}",
       "name": "Remover Membro 2 do racha",
       "description": "Deixe para rodar por último, se quiser — remove o Membro 2 do racha (o Player dele continua no histórico).",
@@ -574,8 +634,8 @@
       "_id": "req_racha_evaluations_open",
       "_type": "request",
       "parentId": "fld_03_racha",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/evaluations-open",
       "name": "Abrir avaliação pública",
       "description": "RF03.4.2 — precisa estar aberto antes da pasta 05 (Avaliações).",
@@ -585,7 +645,12 @@
         "text": "{\n  \"open\": true\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 23000,
       "isPrivate": false,
@@ -600,8 +665,8 @@
       "_id": "req_racha_team_split_open",
       "_type": "request",
       "parentId": "fld_03_racha",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/team-split-open-to-members",
       "name": "Abrir geração de divisão para membros",
       "description": "Extensão do RF05 — com isso ligado, qualquer membro (não só admin) pode gerar divisão de times.",
@@ -611,7 +676,12 @@
         "text": "{\n  \"open\": true\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 24000,
       "isPrivate": false,
@@ -626,8 +696,8 @@
       "_id": "fld_04_players",
       "_type": "request_group",
       "parentId": "wrk_metanol_fc",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "name": "04 - Jogadores",
       "description": "Rode 'Listar jogadores' primeiro e copie os `id` de cada jogador (não confundir com o `userId`!) para `admin_player_id`, `member1_player_id`, `member2_player_id` — são esses ids de Player que as pastas 05 e 06 usam.",
       "environment": {},
@@ -638,8 +708,8 @@
       "_id": "req_players_list",
       "_type": "request",
       "parentId": "fld_04_players",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/players",
       "name": "Listar jogadores do racha",
       "description": "RF03.1/RF03.2 — cada item já vem com `name` resolvido e `average` calculado (mediana das avaliações, com fallback pro manual).",
@@ -661,8 +731,8 @@
       "_id": "req_players_update_stats",
       "_type": "request",
       "parentId": "fld_04_players",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/players/{{ _.member1_player_id }}/stats",
       "name": "Atualizar gols/assistências do Membro 1",
       "description": "RF03.3 — só admin.",
@@ -672,7 +742,12 @@
         "text": "{\n  \"goals\": 3,\n  \"assists\": 2\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 27000,
       "isPrivate": false,
@@ -687,8 +762,8 @@
       "_id": "req_players_add_guest",
       "_type": "request",
       "parentId": "fld_04_players",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/players/guests",
       "name": "Adicionar jogador avulso",
       "description": "RF03.5 (extensão) — participa só desta ocasião, sem conta no sistema. Copie `id` → `guest_player_id`.",
@@ -698,7 +773,12 @@
         "text": "{\n  \"name\": \"Convidado do Fulano\",\n  \"manualAverage\": 3.5\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 28000,
       "isPrivate": false,
@@ -713,8 +793,8 @@
       "_id": "req_players_import_averages",
       "_type": "request",
       "parentId": "fld_04_players",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/players/import-averages",
       "name": "Importar médias via .txt",
       "description": "RF03.4.1 — precisa anexar o arquivo manualmente no Insomnia (campo de arquivo não é portável no export). Exemplo de conteúdo: `membro1@metanolfc.com;4,5`.",
@@ -746,8 +826,8 @@
       "_id": "fld_05_evaluations",
       "_type": "request_group",
       "parentId": "wrk_metanol_fc",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "name": "05 - Avaliações",
       "description": "RF03.4.2. Faça login como cada avaliador antes da respectiva requisição (indicado no nome/descrição). Precisa da avaliação pública aberta (pasta 03) e dos player ids preenchidos (pasta 04).",
       "environment": {},
@@ -758,8 +838,8 @@
       "_id": "req_eval_m1_evaluates_m2",
       "_type": "request",
       "parentId": "fld_05_evaluations",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/evaluations",
       "name": "[login Membro 1] Avaliar Membro 2 — nota 4.5",
       "description": "",
@@ -769,7 +849,12 @@
         "text": "{\n  \"evaluatedPlayerId\": \"{{ _.member2_player_id }}\",\n  \"score\": 4.5\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 31000,
       "isPrivate": false,
@@ -784,8 +869,8 @@
       "_id": "req_eval_m1_evaluates_guest",
       "_type": "request",
       "parentId": "fld_05_evaluations",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/evaluations",
       "name": "[login Membro 1] Avaliar Avulso — nota 3",
       "description": "",
@@ -795,7 +880,12 @@
         "text": "{\n  \"evaluatedPlayerId\": \"{{ _.guest_player_id }}\",\n  \"score\": 3\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 32000,
       "isPrivate": false,
@@ -810,8 +900,8 @@
       "_id": "req_eval_m2_evaluates_m1",
       "_type": "request",
       "parentId": "fld_05_evaluations",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/evaluations",
       "name": "[login Membro 2] Avaliar Membro 1 — nota 5",
       "description": "Troque para 'Login como Membro 2' antes de rodar esta.",
@@ -821,7 +911,12 @@
         "text": "{\n  \"evaluatedPlayerId\": \"{{ _.member1_player_id }}\",\n  \"score\": 5\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 33000,
       "isPrivate": false,
@@ -836,8 +931,8 @@
       "_id": "req_eval_m2_abstains_guest",
       "_type": "request",
       "parentId": "fld_05_evaluations",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/evaluations",
       "name": "[login Membro 2] Abster-se sobre Avulso (\"não sei\")",
       "description": "score: null registra a abstenção — fica salva, mas não entra na mediana.",
@@ -847,7 +942,12 @@
         "text": "{\n  \"evaluatedPlayerId\": \"{{ _.guest_player_id }}\",\n  \"score\": null\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 34000,
       "isPrivate": false,
@@ -862,8 +962,8 @@
       "_id": "req_players_list_after_eval",
       "_type": "request",
       "parentId": "fld_05_evaluations",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/players",
       "name": "[login Admin] Conferir médias atualizadas",
       "description": "Volte pro Login como Admin. Membro 1 e Membro 2 já devem mostrar `average` = a nota recebida (mediana de 1 nota).",
@@ -885,8 +985,8 @@
       "_id": "fld_06_team_splits",
       "_type": "request_group",
       "parentId": "wrk_metanol_fc",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "name": "06 - Divisão de Times",
       "description": "RF05/RF06 + RF04. Rode como Admin. Precisa dos 4 player ids preenchidos (admin, membro1, membro2, avulso).",
       "environment": {},
@@ -897,8 +997,8 @@
       "_id": "req_split_generate",
       "_type": "request",
       "parentId": "fld_06_team_splits",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/team-splits/generate",
       "name": "Gerar divisão de times",
       "description": "RF05.1/RF05.7 — busca a média efetiva de cada jogador, roda o AG e já persiste no histórico. Copie `id` da resposta → `team_split_id`. `algorithm` reduzido aqui só pra responder rápido no teste manual (defaults de produção são maiores).",
@@ -908,7 +1008,12 @@
         "text": "{\n  \"presentPlayerIds\": [\n    \"{{ _.admin_player_id }}\",\n    \"{{ _.member1_player_id }}\",\n    \"{{ _.member2_player_id }}\",\n    \"{{ _.guest_player_id }}\"\n  ],\n  \"params\": {\n    \"numberOfTeams\": 2,\n    \"playersPerTeam\": 2,\n    \"algorithm\": {\n      \"populationSize\": 20,\n      \"generations\": 30,\n      \"crossoverRate\": 0.8,\n      \"mutationRate\": 0.1\n    }\n  }\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 37000,
       "isPrivate": false,
@@ -923,8 +1028,8 @@
       "_id": "req_split_history",
       "_type": "request",
       "parentId": "fld_06_team_splits",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/team-splits",
       "name": "Histórico de divisões",
       "description": "RF04.2 — paginado, mais recente primeiro.",
@@ -955,8 +1060,8 @@
       "_id": "req_split_detail",
       "_type": "request",
       "parentId": "fld_06_team_splits",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/team-splits/{{ _.team_split_id }}",
       "name": "Detalhe de uma divisão",
       "description": "RF04.3 — inclui os parâmetros usados e o nome de quem gerou (`createdByName`).",
@@ -978,8 +1083,8 @@
       "_id": "req_split_record_result",
       "_type": "request",
       "parentId": "fld_06_team_splits",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/team-splits/{{ _.team_split_id }}/result",
       "name": "Registrar resultado (time 0 venceu)",
       "description": "RF04.4 (extensão) — só admin. Para empate: { \"outcome\": \"draw\" }.",
@@ -989,7 +1094,12 @@
         "text": "{\n  \"outcome\": \"team_win\",\n  \"winningTeamIndex\": 0\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 40000,
       "isPrivate": false,
@@ -1004,8 +1114,8 @@
       "_id": "req_split_ranking",
       "_type": "request",
       "parentId": "fld_06_team_splits",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/team-splits/ranking",
       "name": "Ranking de vitórias por jogador",
       "description": "RF04.4 (extensão) — soma vitórias por jogador entre todas as divisões com resultado registrado.",
@@ -1027,8 +1137,8 @@
       "_id": "req_split_generate_as_member",
       "_type": "request",
       "parentId": "fld_06_team_splits",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/team-splits/generate",
       "name": "[login Membro 1] Gerar divisão como membro comum",
       "description": "Só funciona porque 'Abrir geração de divisão para membros' (pasta 03) foi ligado. Troque para Login como Membro 1 antes.",
@@ -1038,7 +1148,12 @@
         "text": "{\n  \"presentPlayerIds\": [\n    \"{{ _.admin_player_id }}\",\n    \"{{ _.member1_player_id }}\",\n    \"{{ _.member2_player_id }}\",\n    \"{{ _.guest_player_id }}\"\n  ],\n  \"params\": {\n    \"numberOfTeams\": 2,\n    \"playersPerTeam\": 2\n  }\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 42000,
       "isPrivate": false,
@@ -1053,8 +1168,8 @@
       "_id": "fld_07_errors",
       "_type": "request_group",
       "parentId": "wrk_metanol_fc",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "name": "07 - Cenários de erro",
       "description": "Mostra o modelo de autorização/validação funcionando — cada uma deve retornar o status indicado, não 200/201.",
       "environment": {},
@@ -1065,8 +1180,8 @@
       "_id": "req_err_member_adds_member",
       "_type": "request",
       "parentId": "fld_07_errors",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/members",
       "name": "[login Membro 1] Adicionar membro (403 esperado)",
       "description": "Membro comum não pode adicionar participantes — só admin.",
@@ -1076,7 +1191,12 @@
         "text": "{\n  \"userId\": \"{{ _.member2_user_id }}\"\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 44000,
       "isPrivate": false,
@@ -1091,8 +1211,8 @@
       "_id": "req_err_self_evaluation",
       "_type": "request",
       "parentId": "fld_07_errors",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/evaluations",
       "name": "[login Admin] Autoavaliação (400 esperado)",
       "description": "Um jogador não pode avaliar a si mesmo.",
@@ -1102,7 +1222,12 @@
         "text": "{\n  \"evaluatedPlayerId\": \"{{ _.admin_player_id }}\",\n  \"score\": 5\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 45000,
       "isPrivate": false,
@@ -1117,8 +1242,8 @@
       "_id": "req_err_duplicate_evaluation",
       "_type": "request",
       "parentId": "fld_07_errors",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/evaluations",
       "name": "[login Membro 1] Avaliar Membro 2 de novo (409 esperado)",
       "description": "Repete a avaliação da pasta 05 — avaliação é imutável, não pode reenviar.",
@@ -1128,7 +1253,12 @@
         "text": "{\n  \"evaluatedPlayerId\": \"{{ _.member2_player_id }}\",\n  \"score\": 2\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 46000,
       "isPrivate": false,
@@ -1143,8 +1273,8 @@
       "_id": "req_err_invalid_team_index",
       "_type": "request",
       "parentId": "fld_07_errors",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/team-splits/{{ _.team_split_id }}/result",
       "name": "[login Admin] Resultado com índice de time inválido (400 esperado)",
       "description": "",
@@ -1154,7 +1284,12 @@
         "text": "{\n  \"outcome\": \"team_win\",\n  \"winningTeamIndex\": 99\n}"
       },
       "parameters": [],
-      "headers": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
       "authentication": {},
       "metaSortKey": 47000,
       "isPrivate": false,
@@ -1169,8 +1304,8 @@
       "_id": "req_err_split_not_found",
       "_type": "request",
       "parentId": "fld_07_errors",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas/{{ _.racha_id }}/team-splits/00000000-0000-0000-0000-000000000000",
       "name": "Divisão inexistente (404 esperado)",
       "description": "",
@@ -1192,8 +1327,8 @@
       "_id": "req_err_unauthenticated",
       "_type": "request",
       "parentId": "fld_07_errors",
-      "modified": 1787620514828,
-      "created": 1787620514828,
+      "modified": 1787621412587,
+      "created": 1787621412587,
       "url": "{{ _.base_url }}/rachas",
       "name": "[após Logout] Listar rachas sem sessão (401 esperado)",
       "description": "Rode 'Logout' (pasta 01) antes desta.",

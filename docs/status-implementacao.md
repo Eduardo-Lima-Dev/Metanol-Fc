@@ -98,7 +98,7 @@ Detalhamento do algoritmo em
 |--------|--------|
 | `apps/api` | Módulos `auth`, `team-split` (+ histórico), `racha`, `players`, `evaluations` e `users` implementados; `prisma/schema.prisma` tem `Users`, `Racha`, `RachaMember`, `Player`, `Evaluation`, `TeamSplit` |
 | `apps/web` | Boilerplate padrão do Vite — nenhuma tela do produto construída |
-| `apps/app` | Fase 0 (setup + design system) implementada — ver seção "Frontend" abaixo |
+| `apps/app` | Etapa 1 completa (Fases 0–5) — ver seção "Frontend" abaixo |
 | `packages/shared` | Contratos Zod cobrindo praticamente todo o domínio (RF01–RF06); `racha`/`racha-member`/`player`/`evaluation`/`team-split` já consumidos pela API |
 
 ## Frontend
@@ -108,20 +108,19 @@ Acompanhamento por fase do plano de frontend (app mobile primeiro, depois web).
 | Etapa | Fase | Status | Onde |
 |-------|------|--------|------|
 | 1 — App (React Native/Expo) | Fase 0 — Setup + Design System | ✅ | `apps/app` — `expo-router` (`(auth)`/`(tabs)`), NativeWind com tokens da marca, tema escuro padrão persistido via `expo-secure-store`, TanStack Query, componentes base |
-| 1 — App | Fase 1 — Autenticação + Perfil | ❌ | — |
-| 1 — App | Fase 2 — Rachas | ❌ | — |
-| 1 — App | Fase 3 — Jogadores + Avaliações | ❌ | — |
-| 1 — App | Fase 4 — Divisão + Histórico + Ranking | ❌ | — |
-| 1 — App | Fase 5 — Polimento | ❌ | — |
+| 1 — App | Fase 1 — Autenticação + Perfil | ✅ | `core/auth` (`AuthProvider`, `httpClient` com `Authorization: Bearer`), telas de login/cadastro/perfil/editar perfil |
+| 1 — App | Fase 2 — Rachas | ✅ | Lista, criar, hub, configurações (toggles), gerenciar membros (busca por e-mail) |
+| 1 — App | Fase 3 — Jogadores + Avaliações | ✅ | Lista, editar stats, avulso, importar `.txt`, avaliação com abstenção |
+| 1 — App | Fase 4 — Divisão + Histórico + Ranking | ✅ | Gerar divisão (parâmetros avançados colapsáveis), detalhe + registrar resultado, histórico paginado, ranking |
+| 1 — App | Fase 5 — Polimento | ✅ | Pull-to-refresh nas listas, erro uniforme via `ErrorView` em todas as mutações, toque ≥44pt no `ScorePicker` |
 | 2 — Web (React + Tailwind) | Fases 0–5 | ❌ | — |
 
 ## Lacunas críticas (ordem sugerida de ataque)
 
 Todos os requisitos funcionais (RF01–RF06, incluindo as extensões de RF03/RF04/RF05)
-estão implementados no backend. O que falta:
+estão implementados no backend. A Etapa 1 (app mobile) está completa. O que falta:
 
-1. **Telas de produto em `apps/web`/`apps/app`**, com a Fase 0 do app já implementada
-   (ver seção "Frontend" acima).
+1. **Etapa 2 — Web (`apps/web`)**, ainda no boilerplate padrão do Vite.
 2. **Observabilidade (Sentry) e infraestrutura de deploy**, antes de expor o sistema
    fora do ambiente local.
 

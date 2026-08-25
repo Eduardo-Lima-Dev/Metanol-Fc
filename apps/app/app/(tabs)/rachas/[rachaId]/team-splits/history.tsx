@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Pressable, RefreshControl, Text, View } from "react-native";
 import type { TeamSplit } from "@metanol/shared";
 import { ScreenContainer } from "../../../../../src/components/ScreenContainer";
 import { Card } from "../../../../../src/components/Card";
@@ -46,7 +46,7 @@ export default function TeamSplitHistory() {
   const { rachaId } = useLocalSearchParams<{ rachaId: string }>();
   const router = useRouter();
   const [page, setPage] = useState(1);
-  const { data, isLoading, error } = useTeamSplits(rachaId, page);
+  const { data, isLoading, error, refetch, isRefetching } = useTeamSplits(rachaId, page);
 
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
 
@@ -70,6 +70,9 @@ export default function TeamSplitHistory() {
           data={data.items}
           keyExtractor={(item) => item.id}
           contentContainerClassName="gap-3 pb-6"
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#D8A73C" />
+          }
           renderItem={({ item }) => (
             <HistoryRow
               item={item}

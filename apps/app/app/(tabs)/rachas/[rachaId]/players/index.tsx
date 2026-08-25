@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { FlatList, Pressable, Text, View } from "react-native";
+import { FlatList, Pressable, RefreshControl, Text, View } from "react-native";
 import type { Player } from "@metanol/shared";
 import { ScreenContainer } from "../../../../../src/components/ScreenContainer";
 import { Card } from "../../../../../src/components/Card";
@@ -48,7 +48,7 @@ export default function PlayersList() {
   const isAdmin = role === "admin";
 
   const { data: racha } = useRacha(rachaId);
-  const { data: players, isLoading, error } = usePlayers(rachaId);
+  const { data: players, isLoading, error, refetch, isRefetching } = usePlayers(rachaId);
 
   return (
     <ScreenContainer>
@@ -97,6 +97,9 @@ export default function PlayersList() {
           data={players}
           keyExtractor={(item) => item.id}
           contentContainerClassName="gap-3 pb-6"
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#D8A73C" />
+          }
           renderItem={({ item }) => (
             <PlayerRow
               player={item}

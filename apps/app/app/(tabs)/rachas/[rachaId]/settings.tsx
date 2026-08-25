@@ -24,6 +24,7 @@ export default function RachaSettings() {
   const [name, setName] = useState("");
   const [schedule, setSchedule] = useState("");
   const [submitError, setSubmitError] = useState<unknown>(null);
+  const [toggleError, setToggleError] = useState<unknown>(null);
 
   useEffect(() => {
     if (racha) {
@@ -73,7 +74,10 @@ export default function RachaSettings() {
           </View>
           <Switch
             value={racha.evaluationsOpen}
-            onValueChange={(value) => setEvaluationsOpen.mutate(value)}
+            onValueChange={(value) => {
+              setToggleError(null);
+              setEvaluationsOpen.mutate(value, { onError: setToggleError });
+            }}
             trackColor={{ true: "#D8A73C" }}
           />
         </View>
@@ -89,10 +93,15 @@ export default function RachaSettings() {
           </View>
           <Switch
             value={racha.teamSplitOpenToMembers}
-            onValueChange={(value) => setTeamSplitOpenToMembers.mutate(value)}
+            onValueChange={(value) => {
+              setToggleError(null);
+              setTeamSplitOpenToMembers.mutate(value, { onError: setToggleError });
+            }}
             trackColor={{ true: "#D8A73C" }}
           />
         </View>
+
+        <ErrorView error={toggleError} />
       </View>
     </ScreenContainer>
   );

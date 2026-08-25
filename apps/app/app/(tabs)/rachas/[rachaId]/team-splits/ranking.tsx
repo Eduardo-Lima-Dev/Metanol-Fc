@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from "expo-router";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, RefreshControl, Text, View } from "react-native";
 import type { TeamSplitPlayerRankingEntry } from "@metanol/shared";
 import { ScreenContainer } from "../../../../../src/components/ScreenContainer";
 import { Card } from "../../../../../src/components/Card";
@@ -26,7 +26,7 @@ function RankingRow({ entry, position }: { entry: TeamSplitPlayerRankingEntry; p
 
 export default function TeamSplitRanking() {
   const { rachaId } = useLocalSearchParams<{ rachaId: string }>();
-  const { data, isLoading, error } = useTeamSplitRanking(rachaId);
+  const { data, isLoading, error, refetch, isRefetching } = useTeamSplitRanking(rachaId);
 
   return (
     <ScreenContainer>
@@ -50,6 +50,9 @@ export default function TeamSplitRanking() {
           data={data}
           keyExtractor={(item) => item.playerId}
           contentContainerClassName="gap-3 pb-6"
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#D8A73C" />
+          }
           renderItem={({ item, index }) => <RankingRow entry={item} position={index + 1} />}
         />
       ) : null}

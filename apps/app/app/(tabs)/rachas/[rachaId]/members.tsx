@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { Alert, FlatList, Text, View } from "react-native";
+import { Alert, FlatList, RefreshControl, Text, View } from "react-native";
 import type { RachaMemberWithUser } from "@metanol/shared";
 import { ScreenContainer } from "../../../../src/components/ScreenContainer";
 import { TextField } from "../../../../src/components/TextField";
@@ -70,7 +70,7 @@ export default function RachaMembers() {
   const role = useRachaRole(rachaId);
   const isViewerAdmin = role === "admin";
 
-  const { data: members, isLoading, error } = useRachaMembers(rachaId);
+  const { data: members, isLoading, error, refetch, isRefetching } = useRachaMembers(rachaId);
   const findUserByEmail = useFindUserByEmail();
   const addMember = useAddRachaMember(rachaId);
   const removeMember = useRemoveRachaMember(rachaId);
@@ -78,6 +78,7 @@ export default function RachaMembers() {
 
   const [email, setEmail] = useState("");
   const [addError, setAddError] = useState<unknown>(null);
+  const [actionError, setActionError] = useState<unknown>(null);
 
   const onAdd = async () => {
     setAddError(null);
@@ -96,7 +97,10 @@ export default function RachaMembers() {
       {
         text: "Remover",
         style: "destructive",
-        onPress: () => removeMember.mutate(member.userId),
+        onPress: () => {
+          setActionError(null);
+          removeMember.mutate(member.userId, { onError: setActionError });
+        },
       },
     ]);
   };
@@ -130,6 +134,11 @@ export default function RachaMembers() {
           <ErrorView error={error} />
         </View>
       ) : null}
+      {actionError ? (
+        <View className="mt-4">
+          <ErrorView error={actionError} />
+        </View>
+      ) : null}
 
       {members ? (
         <FlatList
@@ -137,13 +146,22 @@ export default function RachaMembers() {
           data={members}
           keyExtractor={(item) => item.id}
           contentContainerClassName="gap-3 pb-6"
+          refreshControl={
+            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor="#D8A73C" />
+          }
           renderItem={({ item }) => (
             <MemberRow
               member={item}
               isViewerAdmin={isViewerAdmin}
               isSelf={item.userId === user?.id}
-              onPromote={() => setMemberRole.mutate({ userId: item.userId, role: "admin" })}
-              onDemote={() => setMemberRole.mutate({ userId: item.userId, role: "member" })}
+              onPromote={() => {
+                setActionError(null);
+                setMemberRole.mutate({ userId: item.userId, role: "admin" }, { onError: setActionError });
+              }}
+              onDemote={() => {
+                setActionError(null);
+                setMemberRole.mutate({ userId: item.userId, role: "member" }, { onError: setActionError });
+              }}
               onRemove={() => confirmRemove(item)}
             />
           )}

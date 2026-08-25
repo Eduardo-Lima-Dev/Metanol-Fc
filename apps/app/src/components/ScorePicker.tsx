@@ -17,7 +17,7 @@ export function ScorePicker({ value, onChange, nullLabel = "Não sei" }: ScorePi
           <Pressable
             key={score}
             onPress={() => onChange(score)}
-            className={`h-9 w-9 items-center justify-center rounded-full ${
+            className={`h-11 w-11 items-center justify-center rounded-full ${
               selected ? "bg-gold" : "bg-charcoal/10 dark:bg-cream/10"
             }`}
           >
@@ -26,14 +26,14 @@ export function ScorePicker({ value, onChange, nullLabel = "Não sei" }: ScorePi
                 selected ? "text-ink" : "text-charcoal dark:text-cream"
               }`}
             >
-    {score}
+              {score}
             </Text>
           </Pressable>
         );
       })}
       <Pressable
         onPress={() => onChange(null)}
-        className={`h-9 items-center justify-center rounded-full px-3 ${
+        className={`h-11 items-center justify-center rounded-full px-3 ${
           value === null ? "bg-gold" : "bg-charcoal/10 dark:bg-cream/10"
         }`}
       >

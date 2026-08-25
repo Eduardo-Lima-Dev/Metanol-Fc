@@ -25,6 +25,7 @@ model Users {
   createdRachas    Racha[]       @relation("RachaCreatedBy")
   players          Player[]
   teamSplits       TeamSplit[]   @relation("TeamSplitCreatedBy")
+  teamSplitResults TeamSplit[]   @relation("TeamSplitResultRecordedBy")
 }
 
 enum RachaMemberRole {
@@ -98,6 +99,11 @@ model Evaluation {
   @@unique([rachaId, evaluatedPlayerId, evaluatorPlayerId])
 }
 
+enum TeamSplitOutcome {
+  team_win
+  draw
+}
+
 model TeamSplit {
   id        String   @id @default(uuid())
   rachaId   String
@@ -107,6 +113,17 @@ model TeamSplit {
   createdAt DateTime @default(now())
   params    Json
   teams     Json
+
+  // Resultado da partida (RF04 extra) — nulo enquanto não registrado. Times
+  // não têm identidade persistente entre divisões diferentes (o índice é
+  // recriado a cada geração), então o resultado é só "quem venceu nessa
+  // ocasião"; ranking por jogador (não por time) é quem agrega isso ao
+  // longo do tempo.
+  outcome              TeamSplitOutcome?
+  winningTeamIndex     Int?
+  resultRecordedBy     String?
+  resultRecordedByUser Users?            @relation("TeamSplitResultRecordedBy", fields: [resultRecordedBy], references: [id])
+  resultRecordedAt     DateTime?
 
   @@index([rachaId, createdAt])
 }

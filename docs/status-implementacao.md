@@ -52,6 +52,7 @@ continuam sendo a fonte de verdade sobre *o que* deve ser construído.
 | RF04.1 Persistir registro a cada divisão gerada | ✅ | `TeamSplitService.generate` chama `TeamSplitHistoryService.create` ao final de cada geração |
 | RF04.2 Consultar histórico de um racha, ordenado por data | ✅ | `GET /rachas/:rachaId/team-splits` (paginado) |
 | RF04.3 Visualizar parâmetros usados em cada divisão | ✅ | `GET /rachas/:rachaId/team-splits/:teamSplitId` |
+| RF04.4 Registrar resultado + ranking de vitórias por jogador *(extensão)* | ✅ | `PATCH /rachas/:rachaId/team-splits/:teamSplitId/result` (admin); `GET /rachas/:rachaId/team-splits/ranking` |
 
 ## RF05 — Divisão de Times via Algoritmo Genético
 

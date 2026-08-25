@@ -34,6 +34,7 @@
 - **RF04.1** Toda vez que uma divisão de times for gerada (RF05), o sistema deve persistir um registro contendo: data/hora de criação e a composição dos times gerados (lista de jogadores por time).
 - **RF04.2** O sistema deve permitir consultar o histórico de divisões de um racha, ordenado por data.
 - **RF04.3** *(sugestão)* O sistema deve permitir visualizar os parâmetros usados em cada divisão (nº de times, nº de jogadores por time), para rastreabilidade.
+- **RF04.4** *(extensão)* O administrador pode registrar o resultado de uma divisão já gerada: qual time venceu, ou empate. Como os times não têm identidade persistente entre divisões diferentes (o índice é recriado a cada geração — o "Time A" de hoje não tem relação com o de outro dia), não existe placar agregado "por time"; em vez disso, o sistema mantém um **ranking de vitórias por jogador** dentro do racha, somando em quantas divisões vencedoras cada jogador apareceu ao longo do tempo.
 
 ## RF05 — Divisão de Times via Algoritmo Genético
 

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
-import { KeyboardAvoidingView, Platform, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { KeyboardAvoidingView } from "react-native-keyboard-controller";
 
 type ScreenContainerProps = {
   children: ReactNode;
@@ -12,10 +13,7 @@ type ScreenContainerProps = {
 export function ScreenContainer({ children, title, subtitle, header }: ScreenContainerProps) {
   return (
     <SafeAreaView className="flex-1 bg-cream dark:bg-ink" edges={["top", "left", "right"]}>
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
+      <KeyboardAvoidingView className="flex-1" behavior="padding">
         <View className="flex-1 px-5">
           {header ? (
             <View className="mb-6 mt-3">{header}</View>

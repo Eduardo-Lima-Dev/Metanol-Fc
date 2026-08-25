@@ -13,6 +13,7 @@ import { TextField } from "../../../../../src/components/TextField";
 import { Button } from "../../../../../src/components/Button";
 import { ErrorView } from "../../../../../src/components/ErrorView";
 import { EmptyState } from "../../../../../src/components/EmptyState";
+import { InfoTooltip } from "../../../../../src/components/InfoTooltip";
 import { LoadingSpinner } from "../../../../../src/components/LoadingSpinner";
 import { usePlayers } from "../../../../../src/features/players/hooks";
 import { useRacha, useRachaRole } from "../../../../../src/features/rachas/hooks";
@@ -170,7 +171,17 @@ export default function GenerateTeamSplit() {
 
         {showAdvanced ? (
           <View className="mt-3 gap-3">
-            <Text className="text-sm font-medium text-charcoal/80 dark:text-cream/80">Pesos</Text>
+            <View className="flex-row items-center gap-1.5">
+              <Text className="text-sm font-medium text-charcoal/80 dark:text-cream/80">Pesos</Text>
+              <InfoTooltip
+                title="Como funcionam os pesos"
+                description={
+                  "Os pesos dizem ao algoritmo o quanto se importar em equilibrar cada característica entre os times — não são uma nota do jogador.\n\n" +
+                  "Para cada time gerado, o app compara a média de nota, gols e assistências entre os times e tenta deixá-las o mais parecidas possível, dando mais atenção às características com peso maior.\n\n" +
+                  "Exemplos: aumente o peso de Média e zere Gols/Assistências para equilibrar só pela avaliação geral, ignorando artilheiros. Peso 0 desliga aquela característica do cálculo. Não há limite máximo, só não pode ser negativo — e o que importa é a proporção entre os três, não a soma."
+                }
+              />
+            </View>
             <View className="flex-row gap-3">
               <View className="flex-1">
                 <TextField

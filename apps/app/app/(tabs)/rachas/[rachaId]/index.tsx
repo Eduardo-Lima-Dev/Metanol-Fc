@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { ScreenContainer } from "../../../../src/components/ScreenContainer";
 import { LoadingSpinner } from "../../../../src/components/LoadingSpinner";
 import { ErrorView } from "../../../../src/components/ErrorView";
@@ -17,9 +17,7 @@ export default function RachaHub() {
   if (error || !racha) {
     return (
       <ScreenContainer>
-        <View className="mt-16">
-          <ErrorView error={error} />
-        </View>
+        <ErrorView error={error} />
       </ScreenContainer>
     );
   }
@@ -27,13 +25,8 @@ export default function RachaHub() {
   const isAdmin = role === "admin";
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">{racha.name}</Text>
-      {racha.schedule ? (
-        <Text className="mt-1 text-charcoal/60 dark:text-cream/60">{racha.schedule}</Text>
-      ) : null}
-
-      <View className="mt-8 gap-3">
+    <ScreenContainer title={racha.name} subtitle={racha.schedule}>
+      <View className="gap-3">
         <Button
           label="Jogadores"
           onPress={() => router.push(`/(tabs)/rachas/${rachaId}/players`)}
@@ -43,6 +36,13 @@ export default function RachaHub() {
           onPress={() => router.push(`/(tabs)/rachas/${rachaId}/team-splits/generate`)}
           variant="secondary"
         />
+        {isAdmin ? (
+          <Button
+            label="Acompanhar rachas"
+            onPress={() => router.push(`/(tabs)/rachas/${rachaId}/team-splits/track`)}
+            variant="secondary"
+          />
+        ) : null}
         <Button
           label="Histórico de divisões"
           onPress={() => router.push(`/(tabs)/rachas/${rachaId}/team-splits/history`)}

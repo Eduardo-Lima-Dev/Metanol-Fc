@@ -74,6 +74,34 @@ export const recordTeamSplitResultSchema = z
   });
 export type RecordTeamSplitResultInput = z.infer<typeof recordTeamSplitResultSchema>;
 
+// Gols/assistências de um jogador numa divisão de times específica (RF04
+// extra — "acompanhar" um jogo pontual). `recordedByName` é resolvido pela
+// API, não persistido.
+export const teamSplitPlayerStatSchema = z.object({
+  id: z.string().uuid(),
+  teamSplitId: z.string().uuid(),
+  playerId: z.string().uuid(),
+  goals: z.number().int().min(0),
+  assists: z.number().int().min(0),
+  recordedBy: z.string().uuid(),
+  recordedByName: z.string(),
+  recordedAt: z.coerce.date(),
+});
+export type TeamSplitPlayerStat = z.infer<typeof teamSplitPlayerStatSchema>;
+
+export const recordTeamSplitPlayerStatsSchema = z.object({
+  entries: z
+    .array(
+      z.object({
+        playerId: z.string().uuid(),
+        goals: z.number().int().min(0),
+        assists: z.number().int().min(0),
+      }),
+    )
+    .min(1),
+});
+export type RecordTeamSplitPlayerStatsInput = z.infer<typeof recordTeamSplitPlayerStatsSchema>;
+
 // Registro de histórico persistido a cada divisão gerada (RF04.1, RF05.7).
 // `createdByName`/`resultRecordedByName` são resolvidos pela API, não
 // persistidos — evita devolver só um UUID cru pra "quem fez a divisão".
@@ -90,6 +118,7 @@ export const teamSplitSchema = z.object({
   resultRecordedBy: z.string().uuid().nullable(),
   resultRecordedByName: z.string().nullable(),
   resultRecordedAt: z.coerce.date().nullable(),
+  playerStats: z.array(teamSplitPlayerStatSchema),
 });
 export type TeamSplit = z.infer<typeof teamSplitSchema>;
 

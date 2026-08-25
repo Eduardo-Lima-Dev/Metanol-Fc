@@ -67,18 +67,54 @@ export class PlayersService {
     return averages;
   }
 
+  /**
+   * Gols/assistências de cada jogador por partida (RF04 extra — "acompanhar"
+   * um jogo pontual), somados ao valor manual de base guardado em
+   * Player.goals/assists. Mesmo espírito de `computeEffectiveAverages`:
+   * o total exibido é dinâmico, dá pra corrigir só o jogo de uma data
+   * específica sem afetar as outras.
+   */
+  async computeMatchStatsTotals(
+    rachaId: string,
+    playerIds?: string[],
+  ): Promise<Map<string, { goals: number; assists: number }>> {
+    const stats = await this.prisma.teamSplitPlayerStat.findMany({
+      where: {
+        player: { rachaId },
+        ...(playerIds ? { playerId: { in: playerIds } } : {}),
+      },
+      select: { playerId: true, goals: true, assists: true },
+    });
+
+    const totals = new Map<string, { goals: number; assists: number }>();
+    for (const stat of stats) {
+      const current = totals.get(stat.playerId) ?? { goals: 0, assists: 0 };
+      totals.set(stat.playerId, {
+        goals: current.goals + stat.goals,
+        assists: current.assists + stat.assists,
+      });
+    }
+    return totals;
+  }
+
   async listPlayers(rachaId: string): Promise<Player[]> {
     const players = await this.prisma.player.findMany({
       where: { rachaId },
       include: { user: { select: { name: true } } },
     });
     const averages = await this.computeEffectiveAverages(rachaId);
+    const matchStatsTotals = await this.computeMatchStatsTotals(rachaId);
 
-    return players.map(({ user, ...player }) => ({
-      ...player,
-      name: user?.name ?? player.guestName ?? "Jogador",
-      average: averages.get(player.id) ?? null,
-    }));
+    return players.map(({ user, ...player }) => {
+      const matchStats = matchStatsTotals.get(player.id);
+      return {
+        ...player,
+        name: user?.name ?? player.guestName ?? "Jogador",
+        goals: player.goals + (matchStats?.goals ?? 0),
+        assists: player.assists + (matchStats?.assists ?? 0),
+        average: averages.get(player.id) ?? null,
+      };
+    });
   }
 
   /**

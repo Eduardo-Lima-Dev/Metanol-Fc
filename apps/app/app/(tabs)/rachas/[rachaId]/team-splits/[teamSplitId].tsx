@@ -4,11 +4,18 @@ import { Pressable, ScrollView, Text, View } from "react-native";
 import { ScreenContainer } from "../../../../../src/components/ScreenContainer";
 import { Card } from "../../../../../src/components/Card";
 import { Button } from "../../../../../src/components/Button";
+import { TextField } from "../../../../../src/components/TextField";
 import { ErrorView } from "../../../../../src/components/ErrorView";
 import { LoadingSpinner } from "../../../../../src/components/LoadingSpinner";
 import { usePlayers } from "../../../../../src/features/players/hooks";
 import { useRachaRole } from "../../../../../src/features/rachas/hooks";
-import { useRecordTeamSplitResult, useTeamSplit } from "../../../../../src/features/team-splits/hooks";
+import {
+  useRecordTeamSplitPlayerStats,
+  useRecordTeamSplitResult,
+  useTeamSplit,
+} from "../../../../../src/features/team-splits/hooks";
+
+type StatEntry = { goals: string; assists: string };
 
 export default function TeamSplitDetail() {
   const { rachaId, teamSplitId } = useLocalSearchParams<{
@@ -19,18 +26,19 @@ export default function TeamSplitDetail() {
   const { data: teamSplit, isLoading, error } = useTeamSplit(rachaId, teamSplitId);
   const { data: players } = usePlayers(rachaId);
   const recordResult = useRecordTeamSplitResult(rachaId, teamSplitId);
+  const recordPlayerStats = useRecordTeamSplitPlayerStats(rachaId, teamSplitId);
 
   const [selectedWinner, setSelectedWinner] = useState<number | "draw" | null>(null);
   const [submitError, setSubmitError] = useState<unknown>(null);
+  const [statsByPlayer, setStatsByPlayer] = useState<Record<string, StatEntry> | null>(null);
+  const [statsError, setStatsError] = useState<unknown>(null);
 
   if (isLoading) return <LoadingSpinner />;
 
   if (error || !teamSplit) {
     return (
       <ScreenContainer>
-        <View className="mt-16">
-          <ErrorView error={error} />
-        </View>
+        <ErrorView error={error} />
       </ScreenContainer>
     );
   }
@@ -40,6 +48,19 @@ export default function TeamSplitDetail() {
 
   const isAdmin = role === "admin";
   const hasResult = teamSplit.outcome !== null;
+  const participantIds = teamSplit.teams.flatMap((team) => team.playerIds);
+
+  if (statsByPlayer === null) {
+    const initial: Record<string, StatEntry> = {};
+    for (const playerId of participantIds) {
+      const existing = teamSplit.playerStats.find((s) => s.playerId === playerId);
+      initial[playerId] = {
+        goals: String(existing?.goals ?? 0),
+        assists: String(existing?.assists ?? 0),
+      };
+    }
+    setStatsByPlayer(initial);
+  }
 
   const onConfirmResult = async () => {
     setSubmitError(null);
@@ -58,17 +79,33 @@ export default function TeamSplitDetail() {
     }
   };
 
-  return (
-    <ScreenContainer>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">
-          Divisão de times
-        </Text>
-        <Text className="mt-1 text-sm text-charcoal/60 dark:text-cream/60">
-          Gerado por {teamSplit.createdByName}
-        </Text>
+  const onSaveStats = async () => {
+    setStatsError(null);
+    if (!statsByPlayer) return;
 
-        <View className="mt-6 gap-3">
+    const entries = [];
+    for (const playerId of participantIds) {
+      const entry = statsByPlayer[playerId];
+      const goals = Number(entry?.goals ?? 0);
+      const assists = Number(entry?.assists ?? 0);
+      if (!Number.isInteger(goals) || goals < 0 || !Number.isInteger(assists) || assists < 0) {
+        setStatsError(new Error("Gols e assistências devem ser números inteiros não negativos."));
+        return;
+      }
+      entries.push({ playerId, goals, assists });
+    }
+
+    try {
+      await recordPlayerStats.mutateAsync({ entries });
+    } catch (error) {
+      setStatsError(error);
+    }
+  };
+
+  return (
+    <ScreenContainer title="Divisão de times" subtitle={`Gerado por ${teamSplit.createdByName}`}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View className="gap-3">
           {teamSplit.teams.map((team) => {
             const isWinner = teamSplit.outcome === "team_win" && teamSplit.winningTeamIndex === team.index;
             return (
@@ -89,6 +126,57 @@ export default function TeamSplitDetail() {
           })}
         </View>
 
+        {isAdmin ? (
+          <View className="mt-6 gap-3">
+            <Text className="text-sm font-medium text-charcoal/80 dark:text-cream/80">
+              Gols e assistências deste jogo
+            </Text>
+            {participantIds.map((playerId) => (
+              <Card key={playerId}>
+                <Text className="mb-3 font-medium text-charcoal dark:text-cream">
+                  {playerName(playerId)}
+                </Text>
+                <View className="flex-row gap-3">
+                  <View className="flex-1">
+                    <TextField
+                      label="Gols"
+                      value={statsByPlayer?.[playerId]?.goals ?? "0"}
+                      onChangeText={(value) =>
+                        setStatsByPlayer((prev) => ({
+                          ...prev,
+                          [playerId]: { goals: value, assists: prev?.[playerId]?.assists ?? "0" },
+                        }))
+                      }
+                      keyboardType="number-pad"
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <TextField
+                      label="Assistências"
+                      value={statsByPlayer?.[playerId]?.assists ?? "0"}
+                      onChangeText={(value) =>
+                        setStatsByPlayer((prev) => ({
+                          ...prev,
+                          [playerId]: { goals: prev?.[playerId]?.goals ?? "0", assists: value },
+                        }))
+                      }
+                      keyboardType="number-pad"
+                    />
+                  </View>
+                </View>
+              </Card>
+            ))}
+
+            <ErrorView error={statsError} />
+
+            <Button
+              label={recordPlayerStats.isPending ? "Salvando..." : "Salvar estatísticas"}
+              onPress={onSaveStats}
+              disabled={recordPlayerStats.isPending}
+            />
+          </View>
+        ) : null}
+
         {hasResult ? (
           <View className="mt-6 rounded-xl bg-gold/10 px-4 py-3">
             <Text className="text-gold">
@@ -98,7 +186,7 @@ export default function TeamSplitDetail() {
             </Text>
           </View>
         ) : isAdmin ? (
-          <View className="mt-6 gap-3">
+          <View className="mt-6 mb-8 gap-3">
             <Text className="text-sm font-medium text-charcoal/80 dark:text-cream/80">
               Registrar resultado
             </Text>

@@ -40,5 +40,7 @@ export const endpoints = {
       `/rachas/${rachaId}/team-splits/${teamSplitId}`,
     recordResult: (rachaId: string, teamSplitId: string) =>
       `/rachas/${rachaId}/team-splits/${teamSplitId}/result`,
+    recordPlayerStats: (rachaId: string, teamSplitId: string) =>
+      `/rachas/${rachaId}/team-splits/${teamSplitId}/player-stats`,
   },
 };

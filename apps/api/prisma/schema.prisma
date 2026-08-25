@@ -21,11 +21,12 @@ model Users {
   password_hash String
   createdAt     DateTime @default(now())
 
-  rachaMemberships RachaMember[]
-  createdRachas    Racha[]       @relation("RachaCreatedBy")
-  players          Player[]
-  teamSplits       TeamSplit[]   @relation("TeamSplitCreatedBy")
-  teamSplitResults TeamSplit[]   @relation("TeamSplitResultRecordedBy")
+  rachaMemberships     RachaMember[]
+  createdRachas        Racha[]               @relation("RachaCreatedBy")
+  players              Player[]
+  teamSplits           TeamSplit[]           @relation("TeamSplitCreatedBy")
+  teamSplitResults     TeamSplit[]           @relation("TeamSplitResultRecordedBy")
+  teamSplitPlayerStats TeamSplitPlayerStat[]
 }
 
 enum RachaMemberRole {
@@ -78,8 +79,9 @@ model Player {
   assists       Int     @default(0)
   manualAverage Float?
 
-  evaluationsReceived Evaluation[] @relation("EvaluatedPlayer")
-  evaluationsGiven    Evaluation[] @relation("EvaluatorPlayer")
+  evaluationsReceived Evaluation[]          @relation("EvaluatedPlayer")
+  evaluationsGiven    Evaluation[]          @relation("EvaluatorPlayer")
+  matchStats          TeamSplitPlayerStat[]
 
   @@unique([rachaId, userId])
 }
@@ -125,5 +127,29 @@ model TeamSplit {
   resultRecordedByUser Users?            @relation("TeamSplitResultRecordedBy", fields: [resultRecordedBy], references: [id])
   resultRecordedAt     DateTime?
 
+  playerStats TeamSplitPlayerStat[]
+
   @@index([rachaId, createdAt])
+}
+
+// Gols/assistências de um jogador numa divisão de times específica (RF04
+// extra — "acompanhar" um jogo pontual). O total exibido em Player.goals/
+// assists (RF03.3) soma o valor manual de base com todos esses registros por
+// partida, no mesmo espírito de Player.average (baseline + agregação
+// dinâmica) — dá pra corrigir só o jogo de uma data específica sem afetar as
+// outras.
+model TeamSplitPlayerStat {
+  id             String    @id @default(uuid())
+  teamSplitId    String
+  teamSplit      TeamSplit @relation(fields: [teamSplitId], references: [id], onDelete: Cascade)
+  playerId       String
+  player         Player    @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  goals          Int       @default(0)
+  assists        Int       @default(0)
+  recordedBy     String
+  recordedByUser Users     @relation(fields: [recordedBy], references: [id])
+  recordedAt     DateTime  @default(now())
+
+  @@unique([teamSplitId, playerId])
+  @@index([playerId])
 }

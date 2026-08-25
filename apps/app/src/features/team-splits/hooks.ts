@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
+  RecordTeamSplitPlayerStatsInput,
   RecordTeamSplitResultInput,
   TeamSplit,
   TeamSplitParams,
@@ -64,6 +65,21 @@ export function useRecordTeamSplitResult(rachaId: string, teamSplitId: string) {
     onSuccess: (data) => {
       queryClient.setQueryData(["rachas", rachaId, "team-splits", "detail", teamSplitId], data);
       queryClient.invalidateQueries({ queryKey: ["rachas", rachaId, "team-splits", "ranking"] });
+    },
+  });
+}
+
+export function useRecordTeamSplitPlayerStats(rachaId: string, teamSplitId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: RecordTeamSplitPlayerStatsInput) =>
+      httpClient.patch<TeamSplit>(
+        endpoints.teamSplits.recordPlayerStats(rachaId, teamSplitId),
+        input,
+      ),
+    onSuccess: (data) => {
+      queryClient.setQueryData(["rachas", rachaId, "team-splits", "detail", teamSplitId], data);
+      queryClient.invalidateQueries({ queryKey: ["rachas", rachaId, "players"] });
     },
   });
 }

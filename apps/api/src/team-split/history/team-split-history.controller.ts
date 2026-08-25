@@ -5,6 +5,7 @@ import { RachaAdminGuard, RachaMemberGuard } from "src/racha/guards/racha-role.g
 import { TeamSplitHistoryService } from "./team-split-history.service";
 import { ListTeamSplitsDto } from "../dto/list-team-splits.dto";
 import { RecordTeamSplitResultDto } from "../dto/record-team-split-result.dto";
+import { RecordTeamSplitPlayerStatsDto } from "../dto/record-team-split-player-stats.dto";
 
 @Controller("rachas/:rachaId/team-splits")
 @UseGuards(JwtAuthGuard, RachaMemberGuard)
@@ -37,5 +38,16 @@ export class TeamSplitHistoryController {
     @Body() dto: RecordTeamSplitResultDto,
   ) {
     return this.historyService.recordResult(rachaId, teamSplitId, req.user.id, dto);
+  }
+
+  @Patch(":teamSplitId/player-stats")
+  @UseGuards(RachaAdminGuard)
+  recordPlayerStats(
+    @Param("rachaId") rachaId: string,
+    @Param("teamSplitId") teamSplitId: string,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: RecordTeamSplitPlayerStatsDto,
+  ) {
+    return this.historyService.recordPlayerStats(rachaId, teamSplitId, req.user.id, dto);
   }
 }

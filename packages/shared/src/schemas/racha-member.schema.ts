@@ -13,6 +13,15 @@ export const rachaMemberSchema = z.object({
 });
 export type RachaMember = z.infer<typeof rachaMemberSchema>;
 
+// Membro com os dados do usuário resolvidos — usado na tela de gerenciar
+// membros do racha, que precisa exibir nome/e-mail junto do papel.
+export const rachaMemberWithUserSchema = rachaMemberSchema.extend({
+  name: z.string().min(1),
+  nickname: z.string().min(1).optional(),
+  email: z.string().email(),
+});
+export type RachaMemberWithUser = z.infer<typeof rachaMemberWithUserSchema>;
+
 export const addRachaMemberSchema = z.object({
   rachaId: z.string().uuid(),
   userId: z.string().uuid(),

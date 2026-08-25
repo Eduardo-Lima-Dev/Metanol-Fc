@@ -110,6 +110,36 @@ describe('(RF02): Gerenciamento de rachas', () => {
             expect(promoteResponse.status).toBe(200);
             expect(promoteResponse.body.role).toBe('admin');
         });
+
+        it('Cenário 4.1: Lista membros do racha com nome e papel (RF02.3)', async () => {
+            const { cookie: adminCookie, userId: adminId } = await registerAndLogin('rf02-admin4-1@metanolfc.com', 'Admin Um');
+            const { userId: memberId } = await registerAndLogin('rf02-membro4-1@metanolfc.com', 'Membro Um');
+
+            const rachaResponse = await request(app.getHttpServer())
+                .post('/api/rachas')
+                .set('Cookie', adminCookie)
+                .send({ name: 'Racha com Lista de Membros' });
+            const rachaId = rachaResponse.body.id as string;
+
+            await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/members`)
+                .set('Cookie', adminCookie)
+                .send({ userId: memberId });
+
+            const response = await request(app.getHttpServer())
+                .get(`/api/rachas/${rachaId}/members`)
+                .set('Cookie', adminCookie);
+
+            expect(response.status).toBe(200);
+            expect(response.body).toHaveLength(2);
+
+            const admin = response.body.find((m: { userId: string }) => m.userId === adminId);
+            const member = response.body.find((m: { userId: string }) => m.userId === memberId);
+            expect(admin.role).toBe('admin');
+            expect(admin.name).toBe('Admin Um');
+            expect(member.role).toBe('member');
+            expect(member.name).toBe('Membro Um');
+        });
     });
 
     describe('Cenários de Falha (Caminho de Exceção)', () => {

@@ -66,6 +66,12 @@ export class RachaController {
     return this.rachaService.setTeamSplitOpenToMembers(rachaId, dto.open);
   }
 
+  @Get(":rachaId/members")
+  @UseGuards(RachaMemberGuard)
+  listMembers(@Param("rachaId") rachaId: string) {
+    return this.rachaService.listMembers(rachaId);
+  }
+
   @Post(":rachaId/members")
   @UseGuards(RachaAdminGuard)
   addMember(@Param("rachaId") rachaId: string, @Body() dto: AddRachaMemberDto) {

@@ -83,6 +83,27 @@ export class RachaService {
     });
   }
 
+  async listMembers(rachaId: string) {
+    await this.findOne(rachaId);
+
+    const members = await this.prisma.rachaMember.findMany({
+      where: { rachaId },
+      include: { user: true },
+      orderBy: { joinedAt: "asc" },
+    });
+
+    return members.map((member) => ({
+      id: member.id,
+      rachaId: member.rachaId,
+      userId: member.userId,
+      role: member.role,
+      joinedAt: member.joinedAt,
+      name: member.user.name,
+      nickname: member.user.nickname ?? undefined,
+      email: member.user.email,
+    }));
+  }
+
   async addMember(rachaId: string, userId: string) {
     await this.findOne(rachaId);
 

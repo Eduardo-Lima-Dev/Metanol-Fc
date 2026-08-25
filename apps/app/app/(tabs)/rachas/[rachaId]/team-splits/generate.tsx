@@ -118,13 +118,9 @@ export default function GenerateTeamSplit() {
   };
 
   return (
-    <ScreenContainer>
+    <ScreenContainer title="Gerar divisão">
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">
-          Gerar divisão
-        </Text>
-
-        <Text className="mt-6 text-sm font-medium text-charcoal/80 dark:text-cream/80">
+        <Text className="text-sm font-medium text-charcoal/80 dark:text-cream/80">
           Jogadores presentes ({selected.size})
         </Text>
         <View className="mt-2 gap-2">

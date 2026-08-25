@@ -7,6 +7,7 @@ import { EmptyState } from "../../../src/components/EmptyState";
 import { LoadingSpinner } from "../../../src/components/LoadingSpinner";
 import { ErrorView } from "../../../src/components/ErrorView";
 import { Card } from "../../../src/components/Card";
+import { Logo } from "../../../src/components/Logo";
 import { useRachas } from "../../../src/features/rachas/hooks";
 
 function RachaCard({ racha, onPress }: { racha: RachaWithRole; onPress: () => void }) {
@@ -40,17 +41,31 @@ export default function RachasList() {
   const { data, isLoading, error, refetch, isRefetching } = useRachas();
 
   return (
-    <ScreenContainer>
-      <View className="mt-4 flex-row items-center justify-between">
-        <Text className="text-3xl font-bold text-charcoal dark:text-cream">Rachas</Text>
-        <Pressable
-          onPress={() => router.push("/(tabs)/rachas/create")}
-          className="h-11 w-11 items-center justify-center rounded-full bg-gold"
-        >
-          <Ionicons name="add" size={24} color="#0C0C0C" />
-        </Pressable>
-      </View>
-
+    <ScreenContainer
+      header={
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center gap-3">
+            <Logo size={40} />
+            <Text className="text-3xl font-bold tracking-tight text-charcoal dark:text-cream">
+              Rachas
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => router.push("/(tabs)/rachas/create")}
+            className="h-11 w-11 items-center justify-center rounded-full bg-gold"
+            style={{
+              shadowColor: "#0C0C0C",
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.18,
+              shadowRadius: 8,
+              elevation: 3,
+            }}
+          >
+            <Ionicons name="add" size={24} color="#0C0C0C" />
+          </Pressable>
+        </View>
+      }
+    >
       {isLoading ? <LoadingSpinner /> : null}
 
       {error ? (

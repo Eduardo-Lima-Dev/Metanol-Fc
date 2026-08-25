@@ -52,16 +52,11 @@ export default function ImportAverages() {
   };
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">
-        Importar médias
-      </Text>
-      <Text className="mt-2 text-charcoal/60 dark:text-cream/60">
-        Arquivo .txt com uma linha por jogador: identificador;media (e-mail ou apelido; média de
-        0 a 5).
-      </Text>
-
-      <View className="mt-6 gap-4">
+    <ScreenContainer
+      title="Importar médias"
+      subtitle="Arquivo .txt com uma linha por jogador: identificador;media (e-mail ou apelido; média de 0 a 5)."
+    >
+      <View className="gap-4">
         <Button
           label={fileName ?? "Selecionar arquivo .txt"}
           onPress={pickAndUpload}

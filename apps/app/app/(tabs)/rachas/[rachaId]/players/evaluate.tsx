@@ -72,13 +72,9 @@ export default function Evaluate() {
   const evaluable = players?.filter((p) => p.userId !== user?.id) ?? [];
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">
-        Avaliar jogadores
-      </Text>
-
+    <ScreenContainer title="Avaliar jogadores">
       {error ? (
-        <View className="mt-4">
+        <View className="mb-4">
           <ErrorView error={error} />
         </View>
       ) : null}
@@ -88,7 +84,6 @@ export default function Evaluate() {
       ) : null}
 
       <FlatList
-        className="mt-4"
         data={evaluable}
         keyExtractor={(item) => item.id}
         contentContainerClassName="gap-3 pb-6"

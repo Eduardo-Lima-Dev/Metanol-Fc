@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { createRachaSchema, type CreateRachaInput } from "@metanol/shared";
 import { ScreenContainer } from "../../../src/components/ScreenContainer";
 import { TextField } from "../../../src/components/TextField";
@@ -38,13 +38,11 @@ export default function CreateRacha() {
   };
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">Novo racha</Text>
-      <Text className="mt-2 text-charcoal/60 dark:text-cream/60">
-        Você vira administrador automaticamente ao criar.
-      </Text>
-
-      <View className="mt-6 gap-4">
+    <ScreenContainer
+      title="Novo racha"
+      subtitle="Você vira administrador automaticamente ao criar."
+    >
+      <View className="gap-4">
         <Controller
           control={control}
           name="name"

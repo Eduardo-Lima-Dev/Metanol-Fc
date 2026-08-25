@@ -29,17 +29,9 @@ export default function TeamSplitRanking() {
   const { data, isLoading, error, refetch, isRefetching } = useTeamSplitRanking(rachaId);
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">
-        Ranking de vitórias
-      </Text>
-
+    <ScreenContainer title="Ranking de vitórias">
       {isLoading ? <LoadingSpinner /> : null}
-      {error ? (
-        <View className="mt-4">
-          <ErrorView error={error} />
-        </View>
-      ) : null}
+      {error ? <ErrorView error={error} /> : null}
       {!isLoading && data?.length === 0 ? (
         <EmptyState title="Nenhum resultado registrado ainda" />
       ) : null}

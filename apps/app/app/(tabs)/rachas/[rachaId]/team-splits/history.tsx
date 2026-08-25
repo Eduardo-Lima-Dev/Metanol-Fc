@@ -51,15 +51,9 @@ export default function TeamSplitHistory() {
   const totalPages = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">Histórico</Text>
-
+    <ScreenContainer title="Histórico">
       {isLoading ? <LoadingSpinner /> : null}
-      {error ? (
-        <View className="mt-4">
-          <ErrorView error={error} />
-        </View>
-      ) : null}
+      {error ? <ErrorView error={error} /> : null}
       {!isLoading && data?.items.length === 0 ? (
         <EmptyState title="Nenhuma divisão gerada ainda" />
       ) : null}

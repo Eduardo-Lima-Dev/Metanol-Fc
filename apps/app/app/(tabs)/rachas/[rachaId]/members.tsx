@@ -106,11 +106,9 @@ export default function RachaMembers() {
   };
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">Membros</Text>
-
+    <ScreenContainer title="Membros">
       {isViewerAdmin ? (
-        <View className="mt-4 gap-3">
+        <View className="mb-4 gap-3">
           <TextField
             label="Adicionar por e-mail"
             value={email}

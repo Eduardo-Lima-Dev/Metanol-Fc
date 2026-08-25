@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { updateUserProfileSchema, type UpdateUserProfileInput } from "@metanol/shared";
 import { ScreenContainer } from "../../../src/components/ScreenContainer";
 import { TextField } from "../../../src/components/TextField";
@@ -56,10 +56,8 @@ export default function EditProfile() {
   };
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">Editar perfil</Text>
-
-      <View className="mt-6 gap-4">
+    <ScreenContainer title="Editar perfil">
+      <View className="gap-4">
         <TextField label="Nome" value={name} onChangeText={setName} error={fieldErrors.name} />
         <TextField
           label="Apelido"

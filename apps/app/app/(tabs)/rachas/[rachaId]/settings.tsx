@@ -4,6 +4,7 @@ import { Switch, Text, View } from "react-native";
 import { ScreenContainer } from "../../../../src/components/ScreenContainer";
 import { TextField } from "../../../../src/components/TextField";
 import { Button } from "../../../../src/components/Button";
+import { Card } from "../../../../src/components/Card";
 import { ErrorView } from "../../../../src/components/ErrorView";
 import { LoadingSpinner } from "../../../../src/components/LoadingSpinner";
 import {
@@ -46,12 +47,8 @@ export default function RachaSettings() {
   };
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">
-        Configurações
-      </Text>
-
-      <View className="mt-6 gap-4">
+    <ScreenContainer title="Configurações">
+      <View className="gap-4">
         <TextField label="Nome" value={name} onChangeText={setName} />
         <TextField label="Dia e horário" value={schedule} onChangeText={setSchedule} />
 
@@ -64,42 +61,46 @@ export default function RachaSettings() {
         />
       </View>
 
-      <View className="mt-8 gap-4">
-        <View className="flex-row items-center justify-between">
-          <View className="flex-1 pr-4">
-            <Text className="font-medium text-charcoal dark:text-cream">Avaliação aberta</Text>
-            <Text className="text-sm text-charcoal/60 dark:text-cream/60">
-              Membros podem avaliar jogadores deste racha.
-            </Text>
+      <View className="mt-8 gap-3">
+        <Card>
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1 pr-4">
+              <Text className="font-medium text-charcoal dark:text-cream">Avaliação aberta</Text>
+              <Text className="text-sm text-charcoal/60 dark:text-cream/60">
+                Membros podem avaliar jogadores deste racha.
+              </Text>
+            </View>
+            <Switch
+              value={racha.evaluationsOpen}
+              onValueChange={(value) => {
+                setToggleError(null);
+                setEvaluationsOpen.mutate(value, { onError: setToggleError });
+              }}
+              trackColor={{ true: "#D8A73C" }}
+            />
           </View>
-          <Switch
-            value={racha.evaluationsOpen}
-            onValueChange={(value) => {
-              setToggleError(null);
-              setEvaluationsOpen.mutate(value, { onError: setToggleError });
-            }}
-            trackColor={{ true: "#D8A73C" }}
-          />
-        </View>
+        </Card>
 
-        <View className="flex-row items-center justify-between">
-          <View className="flex-1 pr-4">
-            <Text className="font-medium text-charcoal dark:text-cream">
-              Divisão de times aberta a membros
-            </Text>
-            <Text className="text-sm text-charcoal/60 dark:text-cream/60">
-              Qualquer membro pode gerar a divisão, não só o admin.
-            </Text>
+        <Card>
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1 pr-4">
+              <Text className="font-medium text-charcoal dark:text-cream">
+                Divisão de times aberta a membros
+              </Text>
+              <Text className="text-sm text-charcoal/60 dark:text-cream/60">
+                Qualquer membro pode gerar a divisão, não só o admin.
+              </Text>
+            </View>
+            <Switch
+              value={racha.teamSplitOpenToMembers}
+              onValueChange={(value) => {
+                setToggleError(null);
+                setTeamSplitOpenToMembers.mutate(value, { onError: setToggleError });
+              }}
+              trackColor={{ true: "#D8A73C" }}
+            />
           </View>
-          <Switch
-            value={racha.teamSplitOpenToMembers}
-            onValueChange={(value) => {
-              setToggleError(null);
-              setTeamSplitOpenToMembers.mutate(value, { onError: setToggleError });
-            }}
-            trackColor={{ true: "#D8A73C" }}
-          />
-        </View>
+        </Card>
 
         <ErrorView error={toggleError} />
       </View>

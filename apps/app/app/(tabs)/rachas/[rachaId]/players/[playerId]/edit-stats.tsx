@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { ScreenContainer } from "../../../../../../src/components/ScreenContainer";
 import { TextField } from "../../../../../../src/components/TextField";
 import { Button } from "../../../../../../src/components/Button";
@@ -49,12 +49,8 @@ export default function EditPlayerStats() {
   };
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">
-        {player.name}
-      </Text>
-
-      <View className="mt-6 gap-4">
+    <ScreenContainer title={player.name}>
+      <View className="gap-4">
         <TextField
           label="Gols"
           value={goals}

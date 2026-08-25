@@ -17,9 +17,17 @@ const VARIANT_CLASSES: Record<ButtonVariant, { container: string; label: string 
     label: "text-ink",
   },
   secondary: {
-    container: "border border-gold active:bg-gold/10",
+    container: "border border-charcoal/15 bg-charcoal/[0.03] active:bg-gold/10 dark:border-cream/15 dark:bg-cream/[0.04]",
     label: "text-charcoal dark:text-cream",
   },
+};
+
+const PRIMARY_SHADOW = {
+  shadowColor: "#0C0C0C",
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 0.18,
+  shadowRadius: 8,
+  elevation: 3,
 };
 
 export function Button({ label, onPress, variant = "primary", icon, disabled }: ButtonProps) {
@@ -29,6 +37,7 @@ export function Button({ label, onPress, variant = "primary", icon, disabled }: 
     <Pressable
       onPress={onPress}
       disabled={disabled}
+      style={variant === "primary" && !disabled ? PRIMARY_SHADOW : undefined}
       className={`flex-row items-center justify-center gap-2 rounded-2xl px-5 py-3.5 ${classes.container} ${disabled ? "opacity-40" : ""}`}
     >
       {icon}

@@ -36,15 +36,11 @@ export default function AddGuestPlayer() {
   };
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">
-        Jogador avulso
-      </Text>
-      <Text className="mt-2 text-charcoal/60 dark:text-cream/60">
-        Participa só desta ocasião, sem conta no sistema.
-      </Text>
-
-      <View className="mt-6 gap-4">
+    <ScreenContainer
+      title="Jogador avulso"
+      subtitle="Participa só desta ocasião, sem conta no sistema."
+    >
+      <View className="gap-4">
         <TextField label="Nome" value={name} onChangeText={setName} placeholder="Nome do jogador" />
 
         <View className="gap-1.5">

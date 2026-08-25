@@ -51,10 +51,8 @@ export default function PlayersList() {
   const { data: players, isLoading, error, refetch, isRefetching } = usePlayers(rachaId);
 
   return (
-    <ScreenContainer>
-      <Text className="mt-16 text-3xl font-bold text-charcoal dark:text-cream">Jogadores</Text>
-
-      <View className="mt-4 gap-2">
+    <ScreenContainer title="Jogadores">
+      <View className="gap-2">
         {racha?.evaluationsOpen ? (
           <Button
             label="Avaliar jogadores"

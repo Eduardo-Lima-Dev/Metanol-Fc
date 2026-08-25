@@ -75,6 +75,20 @@ describe('(RF01.5): Edição de perfil', () => {
                 .send({ email: 'perfil3@metanolfc.com', password: 'SenhaNova456!' });
             expect(newPasswordLogin.status).toBe(200);
         });
+
+        it('Cenário 7: Localiza um usuário por e-mail exato', async () => {
+            await registerAndLogin('alvo7@metanolfc.com', 'Fulano Alvo');
+            const cookie = await registerAndLogin('buscador7@metanolfc.com');
+
+            const response = await request(app.getHttpServer())
+                .get('/api/users')
+                .query({ email: 'alvo7@metanolfc.com' })
+                .set('Cookie', cookie);
+
+            expect(response.status).toBe(200);
+            expect(response.body.name).toBe('Fulano Alvo');
+            expect(response.body.password_hash).toBeUndefined();
+        });
     });
 
     describe('Cenários de Falha (Caminho de Exceção)', () => {
@@ -109,6 +123,17 @@ describe('(RF01.5): Edição de perfil', () => {
                 .send({ password: '123' });
 
             expect(response.status).toBe(400);
+        });
+
+        it('Cenário 8: Busca por e-mail inexistente retorna 404', async () => {
+            const cookie = await registerAndLogin('buscador8@metanolfc.com');
+
+            const response = await request(app.getHttpServer())
+                .get('/api/users')
+                .query({ email: 'ninguem-com-esse-email@metanolfc.com' })
+                .set('Cookie', cookie);
+
+            expect(response.status).toBe(404);
         });
     });
 })

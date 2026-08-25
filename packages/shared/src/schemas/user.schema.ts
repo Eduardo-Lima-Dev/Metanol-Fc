@@ -29,3 +29,11 @@ export const updateUserProfileSchema = z.object({
   password: z.string().min(8).optional(),
 });
 export type UpdateUserProfileInput = z.infer<typeof updateUserProfileSchema>;
+
+// Busca de usuário por e-mail exato — usada para localizar o userId ao
+// adicionar alguém a um racha (RF02.3), já que não existe cadastro prévio de
+// membros por outro identificador.
+export const findUserByEmailQuerySchema = z.object({
+  email: z.string().email(),
+});
+export type FindUserByEmailQuery = z.infer<typeof findUserByEmailQuerySchema>;

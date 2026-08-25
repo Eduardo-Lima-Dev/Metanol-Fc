@@ -175,6 +175,69 @@ describe('(RF04): Histórico de divisões', () => {
             expect(entries.find((e) => e.playerId === adminPlayer.id)?.wins).toBe(1);
             expect(entries.find((e) => e.playerId === memberPlayerId)?.wins).toBe(1);
         });
+
+        it('Cenário 12: Admin registra gols/assistências de uma divisão e o total soma no jogador (RF04 extra)', async () => {
+            const { rachaId, adminCookie, adminId } = await createRachaWithAdmin('Racha Estatísticas', 'rf04-admin12@metanolfc.com');
+            const { playerId: memberPlayerId } = await addMember(rachaId, adminCookie, 'rf04-membro12@metanolfc.com');
+            const adminPlayer = await prisma.player.findUniqueOrThrow({
+                where: { rachaId_userId: { rachaId, userId: adminId } },
+            });
+            const teamSplit = await seedTeamSplit(rachaId, adminId, [
+                { index: 0, playerIds: [adminPlayer.id] },
+                { index: 1, playerIds: [memberPlayerId] },
+            ]);
+
+            const response = await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${teamSplit.id}/player-stats`)
+                .set('Cookie', adminCookie)
+                .send({
+                    entries: [
+                        { playerId: adminPlayer.id, goals: 2, assists: 1 },
+                        { playerId: memberPlayerId, goals: 0, assists: 3 },
+                    ],
+                });
+
+            expect(response.status).toBe(200);
+            const savedAdmin = response.body.playerStats.find((s: { playerId: string }) => s.playerId === adminPlayer.id);
+            expect(savedAdmin.goals).toBe(2);
+            expect(savedAdmin.assists).toBe(1);
+            expect(savedAdmin.recordedByName).toBe('Usuário Teste');
+
+            const playersResponse = await request(app.getHttpServer())
+                .get(`/api/rachas/${rachaId}/players`)
+                .set('Cookie', adminCookie);
+            const adminInList = playersResponse.body.find((p: { id: string }) => p.id === adminPlayer.id);
+            const memberInList = playersResponse.body.find((p: { id: string }) => p.id === memberPlayerId);
+            expect(adminInList.goals).toBe(2);
+            expect(adminInList.assists).toBe(1);
+            expect(memberInList.goals).toBe(0);
+            expect(memberInList.assists).toBe(3);
+        });
+
+        it('Cenário 13: Reenviar estatísticas do mesmo jogo corrige em vez de duplicar', async () => {
+            const { rachaId, adminCookie, adminId } = await createRachaWithAdmin('Racha Correção', 'rf04-admin13@metanolfc.com');
+            const adminPlayer = await prisma.player.findUniqueOrThrow({
+                where: { rachaId_userId: { rachaId, userId: adminId } },
+            });
+            const teamSplit = await seedTeamSplit(rachaId, adminId, [{ index: 0, playerIds: [adminPlayer.id] }]);
+
+            await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${teamSplit.id}/player-stats`)
+                .set('Cookie', adminCookie)
+                .send({ entries: [{ playerId: adminPlayer.id, goals: 5, assists: 5 }] });
+
+            await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${teamSplit.id}/player-stats`)
+                .set('Cookie', adminCookie)
+                .send({ entries: [{ playerId: adminPlayer.id, goals: 1, assists: 0 }] });
+
+            const playersResponse = await request(app.getHttpServer())
+                .get(`/api/rachas/${rachaId}/players`)
+                .set('Cookie', adminCookie);
+            const adminInList = playersResponse.body.find((p: { id: string }) => p.id === adminPlayer.id);
+            expect(adminInList.goals).toBe(1);
+            expect(adminInList.assists).toBe(0);
+        });
     });
 
     describe('Cenários de Falha (Caminho de Exceção)', () => {
@@ -230,6 +293,39 @@ describe('(RF04): Histórico de divisões', () => {
                 .patch(`/api/rachas/${rachaId}/team-splits/${teamSplit.id}/result`)
                 .set('Cookie', memberCookie)
                 .send({ outcome: 'draw' });
+
+            expect(response.status).toBe(403);
+        });
+
+        it('Cenário 14: Jogador que não participou da divisão é rejeitado (400)', async () => {
+            const { rachaId, adminCookie, adminId } = await createRachaWithAdmin('Racha Estatística Inválida', 'rf04-admin14@metanolfc.com');
+            const { playerId: memberPlayerId } = await addMember(rachaId, adminCookie, 'rf04-membro14@metanolfc.com');
+            const adminPlayer = await prisma.player.findUniqueOrThrow({
+                where: { rachaId_userId: { rachaId, userId: adminId } },
+            });
+            // Divisão só com o admin — o membro não participou.
+            const teamSplit = await seedTeamSplit(rachaId, adminId, [{ index: 0, playerIds: [adminPlayer.id] }]);
+
+            const response = await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${teamSplit.id}/player-stats`)
+                .set('Cookie', adminCookie)
+                .send({ entries: [{ playerId: memberPlayerId, goals: 1, assists: 0 }] });
+
+            expect(response.status).toBe(400);
+        });
+
+        it('Cenário 15: Membro comum não pode registrar estatísticas de jogadores', async () => {
+            const { rachaId, adminCookie, adminId } = await createRachaWithAdmin('Racha Estatística Restrita', 'rf04-admin15@metanolfc.com');
+            const { memberCookie } = await addMember(rachaId, adminCookie, 'rf04-membro15@metanolfc.com');
+            const adminPlayer = await prisma.player.findUniqueOrThrow({
+                where: { rachaId_userId: { rachaId, userId: adminId } },
+            });
+            const teamSplit = await seedTeamSplit(rachaId, adminId, [{ index: 0, playerIds: [adminPlayer.id] }]);
+
+            const response = await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-splits/${teamSplit.id}/player-stats`)
+                .set('Cookie', memberCookie)
+                .send({ entries: [{ playerId: adminPlayer.id, goals: 1, assists: 0 }] });
 
             expect(response.status).toBe(403);
         });

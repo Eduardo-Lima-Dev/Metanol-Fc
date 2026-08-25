@@ -3,18 +3,22 @@ import { PrismaService } from "src/prisma/prisma.service";
 import type { Prisma } from "src/generated/prisma/client";
 import type {
   PaginationQuery,
+  RecordTeamSplitPlayerStatsInput,
   RecordTeamSplitResultInput,
   Team,
   TeamSplitParams,
   TeamSplitPlayerRankingEntry,
 } from "@metanol/shared";
 
-const creatorAndResultInclude = {
+const teamSplitInclude = {
   creator: { select: { name: true } },
   resultRecordedByUser: { select: { name: true } },
+  playerStats: {
+    include: { recordedByUser: { select: { name: true } } },
+  },
 } satisfies Prisma.TeamSplitInclude;
 
-type TeamSplitWithNames = Prisma.TeamSplitGetPayload<{ include: typeof creatorAndResultInclude }>;
+type TeamSplitWithNames = Prisma.TeamSplitGetPayload<{ include: typeof teamSplitInclude }>;
 
 @Injectable()
 export class TeamSplitHistoryService {
@@ -38,7 +42,7 @@ export class TeamSplitHistoryService {
     const [items, total] = await Promise.all([
       this.prisma.teamSplit.findMany({
         where: { rachaId },
-        include: creatorAndResultInclude,
+        include: teamSplitInclude,
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -82,10 +86,59 @@ export class TeamSplitHistoryService {
         resultRecordedBy: recordedBy,
         resultRecordedAt: new Date(),
       },
-      include: creatorAndResultInclude,
+      include: teamSplitInclude,
     });
 
     return this.toResponse(updated);
+  }
+
+  /**
+   * Gols/assistências por jogador numa divisão específica (RF04 extra —
+   * "acompanhar" um jogo pontual). Upsert por jogador: reenviar o mesmo jogo
+   * corrige os números daquela partida sem duplicar registro nem afetar as
+   * outras. Só jogadores que de fato participaram desta divisão (presentes
+   * em algum time) podem ter estatística registrada aqui.
+   */
+  async recordPlayerStats(
+    rachaId: string,
+    teamSplitId: string,
+    recordedBy: string,
+    input: RecordTeamSplitPlayerStatsInput,
+  ) {
+    const teamSplit = await this.getOrThrow(rachaId, teamSplitId);
+
+    const teams = teamSplit.teams as unknown as Team[];
+    const validPlayerIds = new Set(teams.flatMap((team) => team.playerIds));
+    for (const entry of input.entries) {
+      if (!validPlayerIds.has(entry.playerId)) {
+        throw new BadRequestException(
+          "Um ou mais jogadores informados não participaram desta divisão",
+        );
+      }
+    }
+
+    await this.prisma.$transaction(
+      input.entries.map((entry) =>
+        this.prisma.teamSplitPlayerStat.upsert({
+          where: { teamSplitId_playerId: { teamSplitId, playerId: entry.playerId } },
+          create: {
+            teamSplitId,
+            playerId: entry.playerId,
+            goals: entry.goals,
+            assists: entry.assists,
+            recordedBy,
+          },
+          update: {
+            goals: entry.goals,
+            assists: entry.assists,
+            recordedBy,
+            recordedAt: new Date(),
+          },
+        }),
+      ),
+    );
+
+    return this.findOne(rachaId, teamSplitId);
   }
 
   /**
@@ -129,7 +182,7 @@ export class TeamSplitHistoryService {
   private async getOrThrow(rachaId: string, teamSplitId: string) {
     const teamSplit = await this.prisma.teamSplit.findUnique({
       where: { id: teamSplitId },
-      include: creatorAndResultInclude,
+      include: teamSplitInclude,
     });
     if (!teamSplit || teamSplit.rachaId !== rachaId) {
       throw new NotFoundException("Divisão de times não encontrada neste racha");
@@ -138,11 +191,15 @@ export class TeamSplitHistoryService {
   }
 
   private toResponse(teamSplit: TeamSplitWithNames) {
-    const { creator, resultRecordedByUser, ...rest } = teamSplit;
+    const { creator, resultRecordedByUser, playerStats, ...rest } = teamSplit;
     return {
       ...rest,
       createdByName: creator.name,
       resultRecordedByName: resultRecordedByUser?.name ?? null,
+      playerStats: playerStats.map(({ recordedByUser, ...stat }) => ({
+        ...stat,
+        recordedByName: recordedByUser.name,
+      })),
     };
   }
 }

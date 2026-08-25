@@ -110,3 +110,20 @@ export function useSetRachaMemberRole(rachaId: string) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["rachas", rachaId, "members"] }),
   });
 }
+
+export function useJoinRachaByInvite() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (inviteCode: string) =>
+      httpClient.post<Racha>(endpoints.rachas.joinByInvite(inviteCode)),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["rachas"] }),
+  });
+}
+
+export function useRegenerateInviteCode(rachaId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => httpClient.post<Racha>(endpoints.rachas.regenerateInvite(rachaId)),
+    onSuccess: (data) => queryClient.setQueryData(["rachas", rachaId], data),
+  });
+}

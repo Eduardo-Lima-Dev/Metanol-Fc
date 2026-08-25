@@ -46,6 +46,10 @@ model Racha {
   createdBy              String
   creator                Users    @relation("RachaCreatedBy", fields: [createdBy], references: [id])
   createdAt              DateTime @default(now())
+  // Link de convite (RF02 extra): quem tiver esse código entra como membro
+  // automaticamente ao se cadastrar/logar pelo link. O admin pode gerar um
+  // código novo pra invalidar o link anterior.
+  inviteCode             String   @unique @default(uuid())
 
   members     RachaMember[]
   players     Player[]

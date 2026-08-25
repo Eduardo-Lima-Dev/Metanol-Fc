@@ -4,6 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { randomUUID } from "node:crypto";
 import { PrismaService } from "../prisma/prisma.service";
 import { PlayersService } from "../players/players.service";
 import type {
@@ -102,6 +103,38 @@ export class RachaService {
       nickname: member.user.nickname ?? undefined,
       email: member.user.email,
     }));
+  }
+
+  /**
+   * Convite por link (RF02 extra): quem tem o código entra como membro ao
+   * se cadastrar/logar pelo link. Idempotente — clicar num link de convite
+   * pra um racha que já se participa não deve dar erro, só devolve o racha.
+   */
+  async joinByInviteCode(inviteCode: string, userId: string) {
+    const racha = await this.prisma.racha.findUnique({ where: { inviteCode } });
+    if (!racha) throw new NotFoundException("Convite inválido ou expirado");
+
+    const existing = await this.prisma.rachaMember.findUnique({
+      where: { rachaId_userId: { rachaId: racha.id, userId } },
+    });
+    if (existing) return racha;
+
+    return this.prisma.$transaction(async (tx) => {
+      await tx.rachaMember.create({
+        data: { rachaId: racha.id, userId, role: "member" },
+      });
+      await this.playersService.createForMember(racha.id, userId, tx);
+      return racha;
+    });
+  }
+
+  // Gera um novo código, invalidando qualquer link de convite anterior.
+  async regenerateInviteCode(rachaId: string) {
+    await this.findOne(rachaId);
+    return this.prisma.racha.update({
+      where: { id: rachaId },
+      data: { inviteCode: randomUUID() },
+    });
   }
 
   async addMember(rachaId: string, userId: string) {

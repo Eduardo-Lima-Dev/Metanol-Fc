@@ -20,6 +20,8 @@ export const endpoints = {
     removeMember: (rachaId: string, userId: string) => `/rachas/${rachaId}/members/${userId}`,
     setMemberRole: (rachaId: string, userId: string) =>
       `/rachas/${rachaId}/members/${userId}/role`,
+    joinByInvite: (inviteCode: string) => `/rachas/invite/${inviteCode}/join`,
+    regenerateInvite: (rachaId: string) => `/rachas/${rachaId}/invite/regenerate`,
   },
   players: {
     list: (rachaId: string) => `/rachas/${rachaId}/players`,

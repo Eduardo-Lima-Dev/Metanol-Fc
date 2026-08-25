@@ -140,6 +140,87 @@ describe('(RF02): Gerenciamento de rachas', () => {
             expect(member.role).toBe('member');
             expect(member.name).toBe('Membro Um');
         });
+
+        it('Cenário 4.2: Usuário entra no racha pelo link de convite (RF02 extra)', async () => {
+            const { cookie: adminCookie } = await registerAndLogin('rf02-admin4-2@metanolfc.com');
+            const { cookie: convidadoCookie, userId: convidadoId } = await registerAndLogin('rf02-convidado4-2@metanolfc.com');
+
+            const rachaResponse = await request(app.getHttpServer())
+                .post('/api/rachas')
+                .set('Cookie', adminCookie)
+                .send({ name: 'Racha com Convite' });
+            const rachaId = rachaResponse.body.id as string;
+            const inviteCode = rachaResponse.body.inviteCode as string;
+            expect(inviteCode).toBeDefined();
+
+            const joinResponse = await request(app.getHttpServer())
+                .post(`/api/rachas/invite/${inviteCode}/join`)
+                .set('Cookie', convidadoCookie);
+
+            expect(joinResponse.status).toBe(200);
+            expect(joinResponse.body.id).toBe(rachaId);
+
+            const membership = await prisma.rachaMember.findUnique({
+                where: { rachaId_userId: { rachaId, userId: convidadoId } },
+            });
+            expect(membership?.role).toBe('member');
+
+            const player = await prisma.player.findUnique({
+                where: { rachaId_userId: { rachaId, userId: convidadoId } },
+            });
+            expect(player).not.toBeNull();
+        });
+
+        it('Cenário 4.3: Clicar no link de convite de novo é idempotente (não dá erro)', async () => {
+            const { cookie: adminCookie } = await registerAndLogin('rf02-admin4-3@metanolfc.com');
+            const { cookie: convidadoCookie } = await registerAndLogin('rf02-convidado4-3@metanolfc.com');
+
+            const rachaResponse = await request(app.getHttpServer())
+                .post('/api/rachas')
+                .set('Cookie', adminCookie)
+                .send({ name: 'Racha Convite Repetido' });
+            const inviteCode = rachaResponse.body.inviteCode as string;
+
+            await request(app.getHttpServer())
+                .post(`/api/rachas/invite/${inviteCode}/join`)
+                .set('Cookie', convidadoCookie);
+
+            const secondJoin = await request(app.getHttpServer())
+                .post(`/api/rachas/invite/${inviteCode}/join`)
+                .set('Cookie', convidadoCookie);
+
+            expect(secondJoin.status).toBe(200);
+        });
+
+        it('Cenário 4.4: Admin gera um novo código, invalidando o link anterior', async () => {
+            const { cookie: adminCookie } = await registerAndLogin('rf02-admin4-4@metanolfc.com');
+            const { cookie: convidadoCookie } = await registerAndLogin('rf02-convidado4-4@metanolfc.com');
+
+            const rachaResponse = await request(app.getHttpServer())
+                .post('/api/rachas')
+                .set('Cookie', adminCookie)
+                .send({ name: 'Racha Regenera Convite' });
+            const rachaId = rachaResponse.body.id as string;
+            const oldInviteCode = rachaResponse.body.inviteCode as string;
+
+            const regenerateResponse = await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/invite/regenerate`)
+                .set('Cookie', adminCookie);
+
+            expect(regenerateResponse.status).toBe(201);
+            const newInviteCode = regenerateResponse.body.inviteCode as string;
+            expect(newInviteCode).not.toBe(oldInviteCode);
+
+            const oldCodeResponse = await request(app.getHttpServer())
+                .post(`/api/rachas/invite/${oldInviteCode}/join`)
+                .set('Cookie', convidadoCookie);
+            expect(oldCodeResponse.status).toBe(404);
+
+            const newCodeResponse = await request(app.getHttpServer())
+                .post(`/api/rachas/invite/${newInviteCode}/join`)
+                .set('Cookie', convidadoCookie);
+            expect(newCodeResponse.status).toBe(200);
+        });
     });
 
     describe('Cenários de Falha (Caminho de Exceção)', () => {
@@ -210,6 +291,38 @@ describe('(RF02): Gerenciamento de rachas', () => {
                 .send({ userId: memberId });
 
             expect(response.status).toBe(409);
+        });
+
+        it('Cenário 9: Código de convite inválido retorna 404', async () => {
+            const { cookie } = await registerAndLogin('rf02-convite-invalido@metanolfc.com');
+
+            const response = await request(app.getHttpServer())
+                .post('/api/rachas/invite/00000000-0000-0000-0000-000000000000/join')
+                .set('Cookie', cookie);
+
+            expect(response.status).toBe(404);
+        });
+
+        it('Cenário 10: Membro comum não pode gerar um novo código de convite', async () => {
+            const { cookie: adminCookie } = await registerAndLogin('rf02-admin10@metanolfc.com');
+            const { cookie: memberCookie, userId: memberId } = await registerAndLogin('rf02-membro10@metanolfc.com');
+
+            const rachaResponse = await request(app.getHttpServer())
+                .post('/api/rachas')
+                .set('Cookie', adminCookie)
+                .send({ name: 'Racha Convite Restrito' });
+            const rachaId = rachaResponse.body.id as string;
+
+            await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/members`)
+                .set('Cookie', adminCookie)
+                .send({ userId: memberId });
+
+            const response = await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/invite/regenerate`)
+                .set('Cookie', memberCookie);
+
+            expect(response.status).toBe(403);
         });
     });
 })

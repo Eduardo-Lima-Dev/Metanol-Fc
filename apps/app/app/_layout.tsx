@@ -24,6 +24,10 @@ function RootNavigator() {
           ) : (
             <Stack.Screen name="(auth)" />
           )}
+          {/* Link de convite (RF02 extra) — precisa ficar acessível
+              independente do status de login, já que quem clica pode ainda
+              não ter conta. */}
+          <Stack.Screen name="join/[inviteCode]" />
         </Stack>
       )}
     </>

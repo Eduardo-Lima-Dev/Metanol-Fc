@@ -36,6 +36,17 @@ export class RachaController {
     return this.rachaService.findAllForUser(req.user.id);
   }
 
+  // Convite por link (RF02 extra) — precisa vir antes de ":rachaId" pra não
+  // ser interpretado como um id de racha.
+  @Post("invite/:inviteCode/join")
+  @HttpCode(200)
+  joinByInviteCode(
+    @Param("inviteCode") inviteCode: string,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    return this.rachaService.joinByInviteCode(inviteCode, req.user.id);
+  }
+
   @Get(":rachaId")
   @UseGuards(RachaMemberGuard)
   findOne(@Param("rachaId") rachaId: string) {
@@ -64,6 +75,12 @@ export class RachaController {
     @Body() dto: SetTeamSplitOpenToMembersDto,
   ) {
     return this.rachaService.setTeamSplitOpenToMembers(rachaId, dto.open);
+  }
+
+  @Post(":rachaId/invite/regenerate")
+  @UseGuards(RachaAdminGuard)
+  regenerateInviteCode(@Param("rachaId") rachaId: string) {
+    return this.rachaService.regenerateInviteCode(rachaId);
   }
 
   @Get(":rachaId/members")

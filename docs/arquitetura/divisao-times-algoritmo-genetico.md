@@ -83,7 +83,7 @@ o "chute" inicial nem resultados intermediários):
 
 ```mermaid
 sequenceDiagram
-    participant C as Cliente (admin do racha)
+    participant C as Cliente (admin, ou membro se teamSplitOpenToMembers)
     participant Ctrl as TeamSplitController
     participant Svc as TeamSplitService
     participant DB as PrismaService
@@ -91,7 +91,7 @@ sequenceDiagram
     participant Hist as TeamSplitHistoryService
 
     C->>Ctrl: POST /rachas/:rachaId/team-splits/generate
-    Note over Ctrl: JwtAuthGuard + RachaAdminGuard
+    Note over Ctrl: JwtAuthGuard + TeamSplitGenerateGuard<br/>(admin sempre; membro só se racha.teamSplitOpenToMembers)
     Ctrl->>Svc: generate(rachaId, userId, dto)
     Svc->>DB: busca Player[] presentes + médias efetivas (RF03.4)
     Svc->>Eng: runGeneticAlgorithm(input)
@@ -169,7 +169,10 @@ de um pool maior, cromossomo binário), não de partição, o que não correspon
 ## Escopo e limitações conhecidas
 
 - ~~Sem autenticação no endpoint~~ **Resolvido.** `POST /rachas/:rachaId/team-splits/generate`
-  exige `JwtAuthGuard` + `RachaAdminGuard` — só o admin do racha inicia a divisão (RF05.1).
+  exige `JwtAuthGuard` + `TeamSplitGenerateGuard` (RF05.1). Por padrão só o admin inicia a
+  divisão; o admin pode ligar `racha.teamSplitOpenToMembers` para liberar qualquer membro —
+  quem gerou e quando ficam sempre registrados no histórico (`TeamSplit.createdBy`/`createdAt`),
+  independente de quem chamou.
 - ~~Sem persistência (RF04)~~ **Resolvido.** Cada divisão gerada é persistida via
   `TeamSplitHistoryService.create` e pode ser consultada depois em
   `GET /rachas/:rachaId/team-splits` (RF04.1/RF05.7).

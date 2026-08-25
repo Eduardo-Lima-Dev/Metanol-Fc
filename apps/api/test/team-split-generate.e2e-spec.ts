@@ -76,6 +76,38 @@ describe('(RF05): Divisão de times', () => {
             expect(historyResponse.status).toBe(200);
             expect(historyResponse.body.teams).toHaveLength(2);
         });
+
+        it('Cenário 5: Com "aberto para membros" ligado, um membro comum pode gerar a divisão', async () => {
+            const { rachaId, adminCookie, playerIds, memberCookies } = await createRachaWithPlayers('Racha Aberta Membros', 'rf05-admin5@metanolfc.com', 3);
+            const memberCookie = memberCookies[0];
+            const member = await prisma.users.findFirstOrThrow({
+                where: { email: 'rf05-admin5-membro0@metanolfc.com' },
+            });
+
+            const toggleResponse = await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-split-open-to-members`)
+                .set('Cookie', adminCookie)
+                .send({ open: true });
+            expect(toggleResponse.status).toBe(200);
+            expect(toggleResponse.body.teamSplitOpenToMembers).toBe(true);
+
+            const response = await request(app.getHttpServer())
+                .post(`/api/rachas/${rachaId}/team-splits/generate`)
+                .set('Cookie', memberCookie)
+                .send({
+                    presentPlayerIds: playerIds,
+                    params: { numberOfTeams: 2, playersPerTeam: 2, algorithm: fastAlgorithm },
+                });
+
+            expect(response.status).toBe(201);
+
+            const historyResponse = await request(app.getHttpServer())
+                .get(`/api/rachas/${rachaId}/team-splits/${response.body.id}`)
+                .set('Cookie', adminCookie);
+            expect(historyResponse.status).toBe(200);
+            expect(historyResponse.body.createdBy).toBe(member.id);
+            expect(historyResponse.body.createdAt).toBeDefined();
+        });
     });
 
     describe('Cenários de Falha (Caminho de Exceção)', () => {
@@ -121,6 +153,18 @@ describe('(RF05): Divisão de times', () => {
                 });
 
             expect(response.status).toBe(401);
+        });
+
+        it('Cenário 6: Membro comum não pode alterar a configuração "aberto para membros"', async () => {
+            const { rachaId, memberCookies } = await createRachaWithPlayers('Racha Config Restrita', 'rf05-admin6@metanolfc.com', 3);
+            const memberCookie = memberCookies[0];
+
+            const response = await request(app.getHttpServer())
+                .patch(`/api/rachas/${rachaId}/team-split-open-to-members`)
+                .set('Cookie', memberCookie)
+                .send({ open: true });
+
+            expect(response.status).toBe(403);
         });
     });
 })

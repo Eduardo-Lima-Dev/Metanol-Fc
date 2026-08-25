@@ -8,6 +8,9 @@ export const rachaSchema = z.object({
   schedule: z.string().min(1).optional(),
   // controla se a avaliação pública de jogadores (RF03.4.2) está aberta para preenchimento.
   evaluationsOpen: z.boolean(),
+  // quando true, qualquer membro (não só o admin) pode gerar uma divisão de
+  // times (RF05 extra).
+  teamSplitOpenToMembers: z.boolean(),
   createdBy: z.string().uuid(),
   createdAt: z.coerce.date(),
 });
@@ -30,6 +33,14 @@ export const setEvaluationsOpenSchema = z.object({
   open: z.boolean(),
 });
 export type SetEvaluationsOpenInput = z.infer<typeof setEvaluationsOpenSchema>;
+
+export const setTeamSplitOpenToMembersSchema = z.object({
+  rachaId: z.string().uuid(),
+  open: z.boolean(),
+});
+export type SetTeamSplitOpenToMembersInput = z.infer<
+  typeof setTeamSplitOpenToMembersSchema
+>;
 
 // Racha listado para um usuário (RF02.5), com o papel que ele exerce nele.
 export const rachaWithRoleSchema = rachaSchema.extend({

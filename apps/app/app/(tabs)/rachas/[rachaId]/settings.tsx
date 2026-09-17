@@ -8,6 +8,7 @@ import { Button } from "../../../../src/components/Button";
 import { Card } from "../../../../src/components/Card";
 import { ErrorView } from "../../../../src/components/ErrorView";
 import { LoadingSpinner } from "../../../../src/components/LoadingSpinner";
+import { WEB_URL } from "../../../../src/core/api/config";
 import {
   useRacha,
   useRegenerateInviteCode,
@@ -17,7 +18,9 @@ import {
 } from "../../../../src/features/rachas/hooks";
 
 function buildInviteLink(inviteCode: string) {
-  return `metanolfc://join/${inviteCode}`;
+  // Link https "de verdade" (clicável no WhatsApp, funciona no navegador) que
+  // redireciona pro app via metanolfc://join/CODIGO — ver InviteRedirectController na API.
+  return `${WEB_URL}/join/${inviteCode}`;
 }
 
 export default function RachaSettings() {
